@@ -1,5 +1,35 @@
 {% extends './base.html'%}
+{% load tags %}
 {% block content %}
-<h3>Browse by:</h3>
+<h3 class="text-center">Browse courses</h3>
+
+<form style="float: right;">
+    {{form}}<br>
+    <input type="submit">
+</form>
+
+<div class="container">
+    {% if request.GET.browse_by == 'U' %}
+    {% for university in universities %}
+    <a class="text-decoration-none" href="{% url 'uni_details' university.name %}">{{university.name}}</a>
+        {% if university|get_course_by_university%}
+        {% for course in university|get_course_by_university %}
+        <div>
+            <a class="text-decoration-none" href="{% url 'course_details' course.code %}">{{course.name}}</a>
+        </div>
+        {% endfor %}
+        {% endif %}
+    {% endfor %}
+    {% else %}
+    {% for category in categories %}
+    {{category}}<br>
+        {% for course in category|get_course_by_categories %}
+        <div>
+            <a class="text-decoration-none" href="{% url 'course_details' course.code %}">{{course.name}}</a>
+        </div>
+        {% endfor %}
+    {% endfor %}
+    {% endif %}
+</div>
 
 {% endblock %}

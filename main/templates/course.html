@@ -1,0 +1,29 @@
+{% extends './base.html'%}
+{% load tags%}
+{% block content %}
+<div class="jumbotron">
+    <h1 class="display-4">{{course.name}}</h1>
+    <p class="lead">{{course.description}}</p>
+    <hr class="my-4">
+    <p>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">Category: {{course.category}}</li>
+
+            <li class="list-group-item">Affiliated to: {{course.affiliated_to}}</li>
+            
+          </ul>
+    </p>
+    {% if request.user.is_authenticated %}
+    <p class="lead">
+      <form method="POST" id="subscribe">
+        {% csrf_token %}
+        <input type="hidden" name="course_code" value="{{course.code}}">
+      </form>
+      <button type="submit" class="btn btn-outline-success btn-light" form="subscribe" value="Submit">{% check_subscription course request.user as subscription %}{% if subscription %} Unsubscribe {% else %}  Subscribe {% endif %}</button>
+    </p>
+    {% endif %}
+  </div>
+
+  
+
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends './base.html' %}
+{% load static %}
+{% block content%}
+<h1 class="display-4 text-center">{{subject.name}}</h1>
+
+<div class="container overflow-hidden">
+    <div class="row gy-5">
+        {% for week in weeks %}
+        {% if forloop.counter0|divisibleby:3 and not forloop.first %}<div class="w-100"></div>{% endif %}
+        <a class="text-decoration-none" href="#" role="button" onclick="view_unit('{{week.week_no}}')">
+            <div class="col-6 p-3 border bg-light">
+                
+                    Week {{week.week_no}} {{week.title}}
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+    function view_unit(num){
+
+        console.log(num);
+    }
+</script>
+{% endblock %}

@@ -1,5 +1,20 @@
 {% extends './base.html'%}
+{% load static %}
 {% block content %}
-<h3>Profile</h3>
-
+<h3>Welcome, {{request.user}}</h3>
+<div>
+  <img src="{% static request.user.student.photo %}">
+</div>
+{% for sub in subscriptions %}
+<div class="card">
+    <div class="card-header">
+      {{sub.course}} ({{sub.progress}}/{{sub.total_weeks}} completed)
+    </div>
+    <div class="card-body">
+      <h5 class="card-title">Next Unit: {{sub.next_unit}}</h5>
+      <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+      <a href="{% url 'study' sub.course.code %}" class="btn btn-outline-primary">Continue</a>
+    </div>
+  </div>
+{% endfor %}
 {% endblock %}
