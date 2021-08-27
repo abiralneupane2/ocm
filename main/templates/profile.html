@@ -3,7 +3,7 @@
 {% block content %}
 <h3>Welcome, {{request.user}}</h3>
 <div>
-  <img src="{% static request.user.student.photo %}">
+  <img src="{{ request.user.student.photo.url }}">
 </div>
 {% for sub in subscriptions %}
 <div class="card">

@@ -4,6 +4,9 @@ from django.urls import reverse
 from . import forms
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
+from django.views import View
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 
 
 # Create your views here.
@@ -78,11 +81,34 @@ def university(request, name):
     return render(request, 'university.html', { 'university': models.University.objects.get(name=name)})
 
 def study(request, code):
+    
+
     s=models.Course.objects.get(code=code)
     context={
         'subject': s,
         'subscription': models.Subscription.objects.get(course=s, student=request.user.student),
-        'weeks': models.Week.objects.filter(course=s)
+        'weeks': models.Week.objects.filter(course=s),
+        
     }
-
+    print(context['video'].video.url)
     return render(request, 'sssh.html', context)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class Comment(View):
+    
+    def post(self, request):
+        cmnt = request.POST.get('comment')
+        code = request.POST.get('course_code')
+        print(code)
+        from_person = request.user.student
+        in_course = models.Course.objects.get(code=code)
+        models.FAQ(comment=cmnt, from_person=from_person, in_course=in_course).save()
+        return HttpResponse(200)
+
+    
+    def delete(self, request):	
+        body_unicode = request.body.decode('utf-8')
+        id = body_unicode.split('=')[1]
+        models.FAQ.objects.get(id=id).delete()
+        return HttpResponse(200)

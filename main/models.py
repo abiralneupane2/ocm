@@ -28,6 +28,11 @@ class Course(models.Model):
     category = models.CharField(choices=CATEGORIES, max_length=2, default='CN')
     code = models.CharField(max_length=3, default='000')
 
+    @property
+    def faq(self):
+        comments = FAQ.objects.filter(in_course=self)
+        return comments
+
     @staticmethod
     def get_all_categories():
         return Course.objects.values_list('category', flat=True).distinct()
@@ -107,6 +112,14 @@ class Week(models.Model):
         return self.course.name + " week " + str(self.week_no)
 
 class Video(models.Model):
-    video = models.FileField()
+    video = models.FileField(upload_to='videos', null=True)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
-    week = models.ForeignKey(Week, on_delete=models.SET_NULL, null=True)
+    week = models.OneToOneField(Week, on_delete=models.CASCADE, null=True)
+
+class FAQ(models.Model):
+    from_person = models.ForeignKey(Student, on_delete=models.CASCADE)
+    in_course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    comment = models.CharField(max_length=500)
+
+    def __str__(self):
+        return self.comment

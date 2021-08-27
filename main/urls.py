@@ -1,5 +1,7 @@
 from django.urls import path
 from . import views
+from django.conf.urls.static import static
+from django.conf import settings
 
 urlpatterns = [
     path('', views.index, name='index'),
@@ -9,4 +11,7 @@ urlpatterns = [
     path('login/', views.userlogin, name='login'),
     path('university/<str:name>/', views.university, name='uni_details'),
     path('study/<str:code>/', views.study, name='study'),
+    path('comment/', views.Comment.as_view(), name='comment'),
+
 ]
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
