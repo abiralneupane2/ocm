@@ -103,7 +103,7 @@
                     <div class="card-body">
                       <h6 class="d-flex align-items-center mb-3">Course Status</h6><br>
                       {% for sub in subscriptions %}
-                      <strong>{{sub.course}}<br> Next unit: {{sub.next_unit}}<a href="{% url 'study' sub.course.code %}" ><i class="material-icons mr-2" style="float: right;">continue</i> </a>  </strong>
+                      <strong>{{sub.course}}<br> Next unit: {{sub.next_unit}}<br><a href="{% url 'study' sub.course.code %}" ><i class="material-icons mr-2">continue</i> </a>  </strong>
                       <div class="progress mb-3" style="height: 5px">
                         <div class="progress-bar bg-primary" role="progressbar" style="width: 80%" aria-valuenow="{{sub|get_percentage}}" aria-valuemin="0" aria-valuemax="100"></div>
                       </div>

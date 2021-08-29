@@ -11,7 +11,12 @@ from django.utils.decorators import method_decorator
 
 # Create your views here.
 def index(request):
-    return render(request, 'index.html')
+    context = {
+        'students': models.Student.objects.all().count(),
+        'courses': models.Course.objects.all().count(),
+        'universities': models.University.objects.all().count()
+    }
+    return render(request, 'index.html', context)
 
 def profile(request):
     if request.user.is_authenticated:
