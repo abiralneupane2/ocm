@@ -16,10 +16,11 @@ def index(request):
 def profile(request):
     if request.user.is_authenticated:
         context={
-            'subscriptions': request.user.student.get_subscriptions()
+            'subscriptions': request.user.student.get_subscriptions(),
+            'student': request.user.student
         }
         
-        return render(request, 'profile.html', context)
+        return render(request, 'profile1.html', context)
     else:
         return redirect(reverse('index'))
 
@@ -31,7 +32,6 @@ def browse(request):
         'categories': models.Course.get_all_categories(),
         'universities': models.University.objects.all()
     }
-    print(context['categories'])
     return render(request, 'browse.html', context)
 
 def course(request, code):
@@ -56,7 +56,7 @@ def course(request, code):
 def userlogin(request):
     if request.user.is_authenticated:
         logout(request)
-        return render(request, 'login.html')
+        return render(request, 'login.html', {'form': forms.LoginForm()})
     else:
         if request.method == 'POST':
             form = forms.LoginForm(request.POST)
@@ -90,7 +90,7 @@ def study(request, code):
         'weeks': models.Week.objects.filter(course=s),
         
     }
-    print(context['video'].video.url)
+    
     return render(request, 'sssh.html', context)
 
 

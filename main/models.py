@@ -33,6 +33,10 @@ class Course(models.Model):
         comments = FAQ.objects.filter(in_course=self)
         return comments
 
+    @property
+    def total_comments(self):
+        return FAQ.objects.filter(in_course=self).count()
+
     @staticmethod
     def get_all_categories():
         return Course.objects.values_list('category', flat=True).distinct()
@@ -62,9 +66,14 @@ class Course(models.Model):
 class Student(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     photo = models.FileField(null=True)
+    address = models.CharField(default="Australia", max_length=100)
+    phone = models.CharField(null=True, max_length=20)
+    bio = models.CharField(null=True, max_length=100)
 
     def get_subscriptions(self):
         return Subscription.objects.filter(student=self)
+
+   
 
     def __str__(self):
         return self.user.username
@@ -95,6 +104,8 @@ class Certificate(models.Model):
     date = models.DateField(auto_now_add=True)
     grade = models.CharField(choices=GRADES, max_length=2)
     university = models.ForeignKey(University, on_delete=models.CASCADE)
+
+
     def __str__(self):
         return self.student.user.username
 
@@ -123,3 +134,17 @@ class FAQ(models.Model):
 
     def __str__(self):
         return self.comment
+
+
+
+class Question(models.Model):
+    course = models.ForeignKey(Course, on_delete=models.SET_NULL, null=True)
+    difficulty = models.IntegerField(default=1)
+    question = models.CharField(max_length=100)
+    option_one = models.CharField(max_length=20)
+    option_two = models.CharField(max_length=20)
+    option_three = models.CharField(max_length=20)
+    option_four = models.CharField(max_length=20)
+
+    def __str__(self):
+        return self.question

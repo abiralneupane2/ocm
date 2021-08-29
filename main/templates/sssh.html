@@ -1,60 +1,92 @@
 {% extends './base.html' %}
 {% load static %}
+{% load tags%}
 {% block content%}
 <h1 class="display-4 text-center">{{subject.name}} {{video}}</h1>
-<div class="container" id="video-container">
+<div class="row"  id="video-container"  style="display: none; visibility: hidden; height: 200px;">
+<div class="col"></div>
+<div class="col-6" >
+    
     <div class="embed-responsive embed-responsive-21by9">
-        <iframe class="embed-responsive-item" id="video-frame"></iframe>
+        <iframe style="display: block;height: 100%; width: 100%;" class="embed-responsive-item" id="video-frame" sandbox></iframe>
     </div>
 </div>
+<div class="col"></div>
 
-<div class="container overflow-hidden">
-    <div class="row gy-5">
+</div>
+
+
+
+<div class="container mx-10 mt-5">
+<table class="table">
+    <thead>
+        <tr>
+            <td>#</td>
+            <td>Week Title</td>
+            <td>Difficulty</td>
+        </tr>
+    </thead>
+    <tbody>
         {% for week in weeks %}
-        {% if forloop.counter0|divisibleby:3 and not forloop.first %}<div class="w-100"></div>{% endif %}
-        <a class="text-decoration-none" href="#" role="button" onclick="view_unit('{{week.week_no}}')">
-            <div class="col-6 p-3 border bg-light">
-
-                Week {{week.week_no}} {{week.title}}
-            </div>
-        </a>
+        <tr>
+            <td>{{week.week_no}}</td>
+            <td><a class="text-decoration-none" href="#" role="button" onclick="view_unit('{{week|get_video_url}}')">{{week.title}}</a></td>
+            <td>3</td>
+        </tr>
         {% endfor %}
-    </div>
+    </tbody>
+</table>
 </div>
 
 
-<div class="comment">
-    <!-- post comment div -->
-    {%if user.is_authenticated %}
+
+<br><br>
+<div class="container mt-5">
+    <div class="row d-flex justify-content-center">
+        <div class="col-md-8">
+            <div class="headings d-flex justify-content-between align-items-center mb-3">
+                <h5>Total comments({{subject.total_comments}})</h5>
+                {%if user.is_authenticated %}
     <div>
         <input type="text" placeholder="Comment" />
-        <button class="comment" value="{{subject.code}}">Post</button>
+        <button class="comment btn btn-outline-primary" value="{{subject.code}}">Post</button>
     </div>
     {%endif%}
-    <!-- comment list div -->
-    <div>
-        {% for comment in subject.faq %}
-        <div>
-
-            <!-- span to delete comment available if logged in by owner or commented by owner -->
-            {%if comment.from_person == request.user.student%}
-            <button class="cmnt-dlt" value="{{comment.id}}">x</button>
-            {%endif%}
-
-            <strong> {{comment.from_person}} </strong> :
-            {{comment}}
+                
+            </div>
+            {% for comment in subject.faq %}
+            <div class="card p-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="user d-flex flex-row align-items-center"> <img src="{{comment.from_person.photo.url}}" width="30" class="user-img rounded-circle mr-2"> <span><small class="font-weight-bold text-primary">{{comment.from_person}}</small> <small class="font-weight-bold">{{comment}}</small></span> </div> <small>2 days ago</small>
+                </div>
+                <div class="action d-flex justify-content-between mt-2 align-items-center">
+                    {%if comment.from_person == request.user.student%}
+                    <button class="cmnt-dlt btn btn-outline-danger reply px-4" value="{{comment.id}}"> <small>Remove</small> </button>
+                    {% endif %}
+                    <div class="icons align-items-center"> <i class="fa fa-star text-warning"></i> <i class="fa fa-check-circle-o check-icon"></i> </div>
+                </div>
+            </div>
+            {% endfor %}
+            
         </div>
-        {% endfor %}
     </div>
-
 </div>
-
 
 
 
 
 <script>
-    $('button#delete').click(function () {
+    function view_unit(url){
+        console.log(url);
+        video_frame = document.getElementById("video-frame")
+        video_container = document.getElementById("video-container")
+        video_frame.setAttribute("src", url)
+        video_container.style.visibility = "visible"
+        video_container.style.display = "block"
+    }
+
+
+    $('button.cmnt-dlt').click(function () {
         let id = $(this).attr('value')
         console.log("delete pressecd");
         if (confirm("Are you sure?")) {
