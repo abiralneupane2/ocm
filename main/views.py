@@ -32,7 +32,7 @@ def profile(request):
                     'profile_edit_form': forms.ProfileEditForm(instance=request.user.student),
                     'user_edit_form': forms.UserEditForm(instance=request.user),
                 }
-            return render(request, 'profile1.html', context)
+            return render(request, 'profile.html', context)
         elif request.method == 'POST':
             pf = forms.ProfileEditForm(request.POST, request.FILES, instance=request.user.student)
             uf = forms.UserEditForm(request.POST, instance=request.user)
@@ -45,7 +45,7 @@ def profile(request):
                 print(uf.errors)
 
             
-            return render(request, 'profile1.html', context)
+            return render(request, 'profile.html', context)
         
 
 
@@ -156,3 +156,24 @@ def quiz(request, week_id):
         'questions': questions
     }
     return render(request, 'quiz.html', context)
+
+def register(request):
+    if request.method=='POST':
+        sf = forms.ProfileRegistrationForm(request.POST, request.FILES)
+        uf = forms.UserRegistrationForm(request.POST)
+        if sf.is_valid() and uf.is_valid():
+            u=uf.save()
+            s=sf.save(commit=False)
+            s.user=u
+            s.save()
+            print("success")
+            login(request, u)
+        else:
+            print(sf.errors)
+            print(uf.errors)
+        return redirect(reverse('index'))
+    context={
+        'uform': forms.UserRegistrationForm(),
+        'sform': forms.ProfileRegistrationForm()
+    }
+    return render(request, 'register.html', context)

@@ -13,6 +13,7 @@ urlpatterns = [
     path('study/<str:code>/', views.study, name='study'),
     path('comment/', views.Comment.as_view(), name='comment'),
     path('quiz/<int:week_id>/', views.quiz, name='quiz'),
+    path('register/', views.register, name='register'),
     
 
 ]
