@@ -1,4 +1,4 @@
-from main.views import course, university
+
 from django.db import models
 from django.contrib.auth.models import User
 # Create your models here.
@@ -66,9 +66,9 @@ class Course(models.Model):
 class Student(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     photo = models.FileField(null=True)
-    address = models.CharField(default="Australia", max_length=100)
-    phone = models.CharField(null=True, max_length=20)
-    bio = models.CharField(null=True, max_length=100)
+    address = models.CharField(default="Australia", max_length=100, blank=True)
+    phone = models.CharField(null=True, max_length=20, blank=True)
+    bio = models.CharField(null=True, max_length=100, blank=True)
 
     def get_subscriptions(self):
         return Subscription.objects.filter(student=self)
@@ -119,6 +119,9 @@ class Week(models.Model):
     week_no = models.IntegerField()
     title = models.CharField(max_length=100, default="title")
 
+    @property
+    def Questions(self):
+        return Question.objects.filter(course=self.course)
     def __str__(self):
         return self.course.name + " week " + str(self.week_no)
 
@@ -145,6 +148,7 @@ class Question(models.Model):
     option_two = models.CharField(max_length=20)
     option_three = models.CharField(max_length=20)
     option_four = models.CharField(max_length=20)
+    answer = models.IntegerField(default=1)
 
     def __str__(self):
         return self.question

@@ -12,6 +12,8 @@ urlpatterns = [
     path('university/<str:name>/', views.university, name='uni_details'),
     path('study/<str:code>/', views.study, name='study'),
     path('comment/', views.Comment.as_view(), name='comment'),
+    path('quiz/<int:week_id>/', views.quiz, name='quiz'),
+    
 
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

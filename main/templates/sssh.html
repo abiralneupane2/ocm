@@ -24,6 +24,7 @@
             <td>#</td>
             <td>Week Title</td>
             <td>Difficulty</td>
+            <td></td>
         </tr>
     </thead>
     <tbody>
@@ -32,6 +33,7 @@
             <td>{{week.week_no}}</td>
             <td><a class="text-decoration-none" href="#" role="button" onclick="view_unit('{{week|get_video_url}}')">{{week.title}}</a></td>
             <td>3</td>
+            <td><a href="{% url 'quiz' week.pk %}">take quiz</a></td>
         </tr>
         {% endfor %}
     </tbody>

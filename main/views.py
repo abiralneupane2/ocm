@@ -1,7 +1,6 @@
-from main import models
+from . import models, forms
 from django.shortcuts import render, HttpResponse, redirect
 from django.urls import reverse
-from . import forms
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.views import View
@@ -21,11 +20,37 @@ def index(request):
 def profile(request):
     if request.user.is_authenticated:
         context={
-            'subscriptions': request.user.student.get_subscriptions(),
-            'student': request.user.student
-        }
+                    'subscriptions': request.user.student.get_subscriptions(),
+                    'student': request.user.student, 
+                               
+                }
+        if request.method == 'GET':
+            if request.GET.get('edit'):
+                context={
+                    'subscriptions': request.user.student.get_subscriptions(),
+                    'student': request.user.student, 
+                    'profile_edit_form': forms.ProfileEditForm(instance=request.user.student),
+                    'user_edit_form': forms.UserEditForm(instance=request.user),
+                }
+            return render(request, 'profile1.html', context)
+        elif request.method == 'POST':
+            pf = forms.ProfileEditForm(request.POST, request.FILES, instance=request.user.student)
+            uf = forms.UserEditForm(request.POST, instance=request.user)
+            if pf.is_valid() and uf.is_valid():
+                uf.save()
+                pf.save()
+
+            else:
+                print(pf.errors)
+                print(uf.errors)
+
+            
+            return render(request, 'profile1.html', context)
         
-        return render(request, 'profile1.html', context)
+
+
+        
+        
     else:
         return redirect(reverse('index'))
 
@@ -33,7 +58,7 @@ def profile(request):
 def browse(request):
     context = {
         'courses' : models.Course.objects.all(),
-        'form': forms.BrowseForm(),
+        
         'categories': models.Course.get_all_categories(),
         'universities': models.University.objects.all()
     }
@@ -117,3 +142,17 @@ class Comment(View):
         id = body_unicode.split('=')[1]
         models.FAQ.objects.get(id=id).delete()
         return HttpResponse(200)
+
+
+def quiz(request, week_id):
+    if request.method=='POST':
+        print(request.POST)
+        code = models.Week.objects.get(id=week_id).course.code
+        return redirect(reverse('study',  kwargs={'code':code}))
+    week = models.Week.objects.get(id=week_id)
+    questions = week.Questions
+    context={
+        'week': week,
+        'questions': questions
+    }
+    return render(request, 'quiz.html', context)
