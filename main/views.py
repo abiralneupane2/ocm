@@ -6,7 +6,7 @@ from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.conf import settings
-User = settings.AUTH_USER_MODEL
+from .models import User
 
 # Create your views here.
 def index(request):
@@ -18,6 +18,7 @@ def index(request):
     return render(request, 'index.html', context)
 
 def dashboard(request):
+    print(request.user.user_type)
     if request.user.is_authenticated:
         if request.user.user_type==1:
             student=request.user.student
@@ -41,7 +42,6 @@ def dashboard(request):
                 if pf.is_valid() and uf.is_valid():
                     uf.save()
                     pf.save()
-
                 else:
                     print(pf.errors)
                     print(uf.errors)
@@ -57,14 +57,14 @@ def dashboard(request):
             if request.method == 'GET':
                 if request.GET.get('edit'):
                     context={
-                        
+                        'courses': teacher.all_courses,
                         'teacher': teacher, 
                         'profile_edit_form': forms.TeacherProfileEditForm(instance=teacher),
                         'user_edit_form': forms.UserEditForm(instance=request.user),
                     }
                 return render(request, 'teacher/dashboard.html', context)
             elif request.method == 'POST':
-                pf = forms.ProfileEditForm(request.POST, request.FILES, instance=request.user.student)
+                pf = forms.ProfileEditForm(request.POST, request.FILES, instance=request.user.teacher)
                 uf = forms.UserEditForm(request.POST, instance=request.user)
                 if pf.is_valid() and uf.is_valid():
                     uf.save()
@@ -73,7 +73,7 @@ def dashboard(request):
                 else:
                     print(pf.errors)
                     print(uf.errors)
-                return render(request, 'student/dashboard.html', context)
+                return render(request, 'teacher/dashboard.html', context)
 
 
         
@@ -120,13 +120,16 @@ def userlogin(request):
             if form.is_valid():
                 username  = form.cleaned_data.get("username")
                 password  = form.cleaned_data.get("password")
-                user = User.objects.get(username=username)
+                print(username)
+                print(password)
+                user = User.objects.get(username=username, password=password)
+                print(user)
                 if user is not None:
-                    if user.check_password(password):
-                        login(request, user)        
-                        print('user found')
-                        return redirect(reverse('index'))
-                    return render(request, 'login.html', {'errmsg': "password incorrect", "form": form})
+                    
+                    login(request, user)        
+                    print('user found')
+                    return redirect(reverse('index'))
+                    
                 else:
                     print('not found')
                     return render(request, 'login.html', {'errmsg': "user not found", "form": form})
@@ -224,8 +227,11 @@ def teacher_register(request):
             s=sf.save(commit=False)
             u.user_type=2
             s.user=u
+            
             u.save()
             s.save()
+            print("saved")
+            print(s.user)
         else:
             print(sf.errors)
             print(uf.errors)

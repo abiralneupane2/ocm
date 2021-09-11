@@ -1,4 +1,5 @@
 
+
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 # Create your models here.
@@ -66,7 +67,9 @@ class Course(models.Model):
     category = models.ForeignKey(Categories, on_delete=models.SET_NULL, null=True)
     approved = models.BooleanField(default=False)
     approval_message = models.CharField(max_length=200, null=True)
-    
+    @property
+    def subscriptions(self):
+        return Subscription.objects.filter(course=self).count()
 
     @property
     def faq(self):
