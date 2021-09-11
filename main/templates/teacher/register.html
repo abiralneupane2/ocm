@@ -1,0 +1,59 @@
+{% extends '../login.html'%}
+{% block content %}
+
+
+
+
+<h3 class="text-center">Teacher Registration</h3>
+<form method="POST" enctype="multipart/form-data" action="{% url 'register' %}">
+
+
+  {{errmsg}}
+  {% csrf_token %}
+  <div class="form-group">
+    <label>Username</label>
+    {{uform.username}}
+  </div>
+  <div class="form-group">
+    <label>First Name</label>
+    {{uform.first_name}}
+  </div>
+  <div class="form-group">
+    <label>Last Name</label>
+    {{uform.last_name}}
+  </div>
+  <div class="form-group">
+    <label for="exampleInputPassword1">Password</label>
+    {{uform.password}}
+  </div><br>
+
+  <div class="form-group">
+    <label for="exampleInputPassword1">Confirm Password</label>
+    {{uform.confirm_password}}
+  </div><br>
+
+  <div class="form-group">
+    <label for="exampleInputPassword1">Photo</label>
+    {{tform.photo}}
+  </div><br>
+  <div class="form-group">
+    <label for="exampleInputPassword1">Address</label>
+    {{tform.address}}
+  </div><br>
+  <div class="form-group">
+    <label for="exampleInputPassword1">Phone</label>
+    {{tform.phone}}
+  </div><br>
+  <div class="form-group">
+    <label for="exampleInputPassword1">CV</label>
+    {{tform.cv}}
+  </div><br>
+  <button type="submit" class="btn btn-primary">Submit</button>
+
+</form>
+<p>Already have an account? Login <a href="{% url 'login' %}">here</a></p>
+
+
+
+
+{% endblock %}

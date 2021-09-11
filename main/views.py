@@ -2,11 +2,11 @@ from . import models, forms
 from django.shortcuts import render, HttpResponse, redirect
 from django.urls import reverse
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.models import User
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
-
+from django.conf import settings
+User = settings.AUTH_USER_MODEL
 
 # Create your views here.
 def index(request):
@@ -17,36 +17,63 @@ def index(request):
     }
     return render(request, 'index.html', context)
 
-def profile(request):
+def dashboard(request):
     if request.user.is_authenticated:
-        context={
-                    'subscriptions': request.user.student.get_subscriptions(),
-                    'student': request.user.student, 
-                               
-                }
-        if request.method == 'GET':
-            if request.GET.get('edit'):
-                context={
-                    'subscriptions': request.user.student.get_subscriptions(),
-                    'student': request.user.student, 
-                    'profile_edit_form': forms.ProfileEditForm(instance=request.user.student),
-                    'user_edit_form': forms.UserEditForm(instance=request.user),
-                }
-            return render(request, 'profile.html', context)
-        elif request.method == 'POST':
-            pf = forms.ProfileEditForm(request.POST, request.FILES, instance=request.user.student)
-            uf = forms.UserEditForm(request.POST, instance=request.user)
-            if pf.is_valid() and uf.is_valid():
-                uf.save()
-                pf.save()
-
-            else:
-                print(pf.errors)
-                print(uf.errors)
-
+        if request.user.user_type==1:
+            student=request.user.student
             
-            return render(request, 'profile.html', context)
-        
+            context={
+                        'subscriptions': request.user.student.get_subscriptions(),
+                        'student': student, 
+                    }
+            if request.method == 'GET':
+                if request.GET.get('edit'):
+                    context={
+                        'subscriptions': request.user.student.get_subscriptions(),
+                        'student': request.user.student, 
+                        'profile_edit_form': forms.ProfileEditForm(instance=request.user.student),
+                        'user_edit_form': forms.UserEditForm(instance=request.user),
+                    }
+                return render(request, 'student/dashboard.html', context)
+            elif request.method == 'POST':
+                pf = forms.ProfileEditForm(request.POST, request.FILES, instance=request.user.student)
+                uf = forms.UserEditForm(request.POST, instance=request.user)
+                if pf.is_valid() and uf.is_valid():
+                    uf.save()
+                    pf.save()
+
+                else:
+                    print(pf.errors)
+                    print(uf.errors)
+
+                
+                return render(request, 'student/dashboard.html', context)
+        elif request.user.user_type==2:
+            teacher=request.user.teacher
+            context={
+                        
+                        'teacher': teacher, 
+                    }
+            if request.method == 'GET':
+                if request.GET.get('edit'):
+                    context={
+                        
+                        'teacher': teacher, 
+                        'profile_edit_form': forms.TeacherProfileEditForm(instance=teacher),
+                        'user_edit_form': forms.UserEditForm(instance=request.user),
+                    }
+                return render(request, 'teacher/dashboard.html', context)
+            elif request.method == 'POST':
+                pf = forms.ProfileEditForm(request.POST, request.FILES, instance=request.user.student)
+                uf = forms.UserEditForm(request.POST, instance=request.user)
+                if pf.is_valid() and uf.is_valid():
+                    uf.save()
+                    pf.save()
+
+                else:
+                    print(pf.errors)
+                    print(uf.errors)
+                return render(request, 'student/dashboard.html', context)
 
 
         
@@ -159,21 +186,54 @@ def quiz(request, week_id):
 
 def register(request):
     if request.method=='POST':
-        sf = forms.ProfileRegistrationForm(request.POST, request.FILES)
+        sf = forms.StudentRegistrationForm(request.POST, request.FILES)
+        
         uf = forms.UserRegistrationForm(request.POST)
-        if sf.is_valid() and uf.is_valid():
-            u=uf.save()
+        if uf.is_valid() and sf.is_valid():
+            u=uf.save(commit=False)
+            
+            
             s=sf.save(commit=False)
+            u.user_type=1
             s.user=u
+            u.save()
             s.save()
-            print("success")
-            login(request, u)
         else:
             print(sf.errors)
             print(uf.errors)
-        return redirect(reverse('index'))
+            return HttpResponse("<p>error with form submission</p>")
+        login(request, u)
+        return redirect(reverse('dashboard'))
     context={
         'uform': forms.UserRegistrationForm(),
-        'sform': forms.ProfileRegistrationForm()
+        'sform': forms.StudentRegistrationForm(),
+        'tform': forms.TeacherRegistrationForm(),
     }
-    return render(request, 'register.html', context)
+    return render(request, 'student/register.html', context)
+
+def teacher_register(request):
+    errormsg=""
+    if request.method=='POST':
+        sf = forms.TeacherRegistrationForm(request.POST, request.FILES)
+        
+        uf = forms.UserRegistrationForm(request.POST)
+        if uf.is_valid() and sf.is_valid():
+            u=uf.save(commit=False)
+            
+            
+            s=sf.save(commit=False)
+            u.user_type=2
+            s.user=u
+            u.save()
+            s.save()
+        else:
+            print(sf.errors)
+            print(uf.errors)
+            return HttpResponse("<p>error with form submission</p>")
+        login(request, u)
+        return redirect(reverse('dashboard'))
+    context={
+        'uform': forms.UserRegistrationForm(),
+        'tform': forms.TeacherRegistrationForm(),
+    }
+    return render(request, 'teacher/register.html', context)

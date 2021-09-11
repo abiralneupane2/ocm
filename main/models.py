@@ -1,32 +1,72 @@
 
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser
 # Create your models here.
-CATEGORIES = [
-    ('WD', 'Web Development'),
-    ('CN', 'Comuter Networking')
-]
+
 GRADES = [
     ('A', 'Best'),
     ('B', 'Good')
 ]
+class User(AbstractUser):
+  USER_TYPE_CHOICES = ( 
+      (1, 'student'),
+      (2, 'teacher'),
+      (3, 'admin'),
+  )
+
+  user_type = models.PositiveSmallIntegerField(choices=USER_TYPE_CHOICES, default=3)
+
+class Student(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    photo = models.FileField(null=True)
+    address = models.CharField(max_length=100, blank=True)
+    phone = models.CharField(null=True, max_length=20, blank=True)
+    bio = models.CharField(null=True, max_length=100, blank=True)
+
+    def get_subscriptions(self):
+        return Subscription.objects.filter(student=self)
+    
+    def __str__(self):
+        return self.user.username
+
+
+class Teacher(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    cv = models.FileField(upload_to='cvs/')
+    bio = models.CharField(null=True, max_length=100, blank=True)
+    approved = models.BooleanField(default=False)
+    address = models.CharField(max_length=100, blank=True)
+    photo = models.FileField(null=True)
+    phone = models.CharField(null=True, max_length=20, blank=True)
+
+    @property
+    def all_courses(self):
+        return Course.objects.filter(uploaded_by=self)
+
+
+    def __str__(self):
+        return self.user.username
 
 class University(models.Model):
     name = models.CharField(max_length=100)
 
-    @property
-    def courses(self):
-        return Course.objects.filter(affiliated_to=self)
 
     def __str__(self):
         return self.name
 
+class Categories(models.Model):
+    name = models.CharField(max_length=20)
+
+
+
 class Course(models.Model):
     name = models.CharField(max_length=100)
-    affiliated_to = models.ForeignKey(University, on_delete=models.CASCADE)
+    uploaded_by = models.ForeignKey(Teacher, on_delete=models.CASCADE)
     description = models.TextField(max_length=1000)
-    category = models.CharField(choices=CATEGORIES, max_length=2, default='CN')
-    code = models.CharField(max_length=3, default='000')
+    category = models.ForeignKey(Categories, on_delete=models.SET_NULL, null=True)
+    approved = models.BooleanField(default=False)
+    approval_message = models.CharField(max_length=200, null=True)
+    
 
     @property
     def faq(self):
@@ -37,16 +77,17 @@ class Course(models.Model):
     def total_comments(self):
         return FAQ.objects.filter(in_course=self).count()
 
+
     @staticmethod
     def get_all_categories():
         return Course.objects.values_list('category', flat=True).distinct()
     @staticmethod
     def get_courses_by_categories(category):
         return Course.objects.filter(category=category)
-    @staticmethod
-    def get_courses_by_university(university):
+    # @staticmethod
+    # def get_courses_by_university(university):
         
-        return Course.objects.filter(affiliated_to=university)
+    #     return Course.objects.filter(affiliated_to=university)
     
     def check_subscription(self, user):
         
@@ -63,20 +104,7 @@ class Course(models.Model):
     def __str__(self):
         return self.name
 
-class Student(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    photo = models.FileField(null=True)
-    address = models.CharField(default="Australia", max_length=100, blank=True)
-    phone = models.CharField(null=True, max_length=20, blank=True)
-    bio = models.CharField(null=True, max_length=100, blank=True)
 
-    def get_subscriptions(self):
-        return Subscription.objects.filter(student=self)
-
-   
-
-    def __str__(self):
-        return self.user.username
 
 class Subscription(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
@@ -125,8 +153,8 @@ class Week(models.Model):
     def __str__(self):
         return self.course.name + " week " + str(self.week_no)
 
-class Video(models.Model):
-    video = models.FileField(upload_to='videos', null=True)
+class Files(models.Model):
+    file = models.FileField()
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     week = models.OneToOneField(Week, on_delete=models.CASCADE, null=True)
 
@@ -152,3 +180,4 @@ class Question(models.Model):
 
     def __str__(self):
         return self.question
+

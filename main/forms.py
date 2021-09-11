@@ -1,7 +1,9 @@
 from django import forms
 from django.forms import fields
-from django.contrib.auth.models import User
-from .models import Student
+
+from .models import Student, Teacher
+from .models import User
+
 
 
 
@@ -14,13 +16,18 @@ class ProfileEditForm(forms.ModelForm):
         model = Student
         exclude = ['user',]
 
+class TeacherProfileEditForm(forms.ModelForm):
+    class Meta:
+        model=Teacher
+        exclude = ['user', 'approved',]
+
 class UserEditForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ['first_name', 'last_name', 'email']
 
 
-class ProfileRegistrationForm(forms.ModelForm):
+class StudentRegistrationForm(forms.ModelForm):
     photo = forms.FileField(required=False)
     class Meta:
         model = Student
@@ -42,3 +49,9 @@ class UserRegistrationForm(forms.ModelForm):
             raise forms.ValidationError(
                 "password and confirm_password does not match"
             )
+
+class TeacherRegistrationForm(forms.ModelForm):
+    photo = forms.FileField(required=False)
+    class Meta:
+        model = Teacher
+        fields = ('cv','address','photo','phone')

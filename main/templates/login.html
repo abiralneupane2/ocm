@@ -22,6 +22,7 @@
       <a href="{% url 'index' %}"><img style=" display: block;
   margin-left: auto;
   margin-right: auto;" height="20%" width="20%" src="{% static 'icon.png'%}"></a>
+  {% block content %}
       <h3 class="text-center">Learning Zone</h3>
       <form method="POST">
 
@@ -39,8 +40,10 @@
         <button type="submit" class="btn btn-primary">Submit</button>
       </form>
       <p>Don't have an account? Register <a href="{% url 'register' %}">here</a></p>
+      {% endblock %}
     </div>
   </div>
+
 </body>
 
 </html>
