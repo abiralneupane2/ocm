@@ -219,7 +219,7 @@
               <div class="card-body">
                 <h6 class="d-flex align-items-center mb-3">My Subscriptions</h6><br>
                 {% for sub in subscriptions %}{% if sub.flag %}
-                <strong>{{sub.course}}<br> Next unit: {{sub.next_unit}}<br><a href="{% url 'study' sub.course.code %}"><i
+                <strong>{{sub.course}}<br> Next unit: {{sub.next_unit}}<br><a href="{% url 'study' sub.course.id %}"><i
                       class="material-icons mr-2">continue</i> </a> </strong>
                 <div class="progress mb-3" style="height: 5px">
                   <div class="progress-bar bg-primary" role="progressbar" style="width: 80%"
