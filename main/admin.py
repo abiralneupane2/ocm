@@ -29,13 +29,14 @@ class TeacherAdminForm(forms.ModelForm):
     class Meta:
         model = Teacher
         exclude = ['user',]
+    field_order = ['cv', 'photo', 'bio', 'address', 'phone', 'approved',]
 
 class CourseAdminForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(CourseAdminForm, self).__init__(*args, **kwargs)
         self.fields['name'].disabled = True
         self.fields['uploaded_by'].disabled = True
-        self.fields['descriptions'].disabled = True
+        self.fields['description'].disabled = True
         self.fields['category'].disabled = True
     class Meta:
         model = models.Course
