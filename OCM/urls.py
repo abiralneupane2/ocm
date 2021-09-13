@@ -20,3 +20,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('main.urls'))
 ]
+admin.site.site_header = "Learning Zone Admin"
+admin.site.site_title = "Learning Zone Admin Portal"
+admin.site.index_title = "Welcome to Learning Zone Admin Page"

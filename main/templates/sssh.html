@@ -51,7 +51,7 @@
                 {%if user.is_authenticated %}
     <div>
         <input type="text" placeholder="Comment" />
-        <button class="comment btn btn-outline-primary" value="{{subject.code}}">Post</button>
+        <button class="comment btn btn-outline-primary" value="{{subject.id}}">Post</button>
     </div>
     {%endif%}
                 
@@ -108,7 +108,7 @@
     })
 
     $('button.comment').click(function () {
-        code = $(this).attr('value')
+        id = $(this).attr('value')
         comment = $(this).prev().val()
         $(this).prev().val('')
         console.log(code);
@@ -118,7 +118,7 @@
             method: 'POST',
             data: {
                 csrfmiddlewaretoken: window.CSRF_TOKEN,
-                course_code: code,
+                course_id: id,
                 comment: comment
             },
             success: function (res) {

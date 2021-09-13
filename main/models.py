@@ -1,6 +1,6 @@
 
-
 from django.db import models
+
 from django.contrib.auth.models import AbstractUser
 # Create your models here.
 
@@ -44,6 +44,11 @@ class Teacher(models.Model):
     def all_courses(self):
         return Course.objects.filter(uploaded_by=self)
 
+    @property
+    def all_weeks(self):
+        return Week.objects.filter(course__in=self.all_courses)
+    
+
 
     def __str__(self):
         return self.user.username
@@ -57,7 +62,8 @@ class University(models.Model):
 
 class Categories(models.Model):
     name = models.CharField(max_length=20)
-
+    def __str__(self):
+        return self.name
 
 
 class Course(models.Model):
@@ -66,7 +72,7 @@ class Course(models.Model):
     description = models.TextField(max_length=1000)
     category = models.ForeignKey(Categories, on_delete=models.SET_NULL, null=True)
     approved = models.BooleanField(default=False)
-    approval_message = models.CharField(max_length=200, null=True)
+    approval_message = models.CharField(max_length=200, null=True, blank=True)
     @property
     def subscriptions(self):
         return Subscription.objects.filter(course=self).count()
@@ -149,6 +155,7 @@ class Week(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     week_no = models.IntegerField()
     title = models.CharField(max_length=100, default="title")
+    description = models.TextField(max_length=1000, null=True)
 
     @property
     def Questions(self):

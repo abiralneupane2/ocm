@@ -1,7 +1,7 @@
 from django import forms
 from django.forms import fields
 
-from .models import Student, Teacher
+from .models import Student, Teacher, Course, Week, Files
 from .models import User
 
 
@@ -55,3 +55,20 @@ class TeacherRegistrationForm(forms.ModelForm):
     class Meta:
         model = Teacher
         fields = ('cv','address','photo','phone')
+
+class AddCourseForm(forms.ModelForm):
+
+    class Meta:
+        model = Course
+        exclude = ['approved', 'uploaded_by',]
+
+class AddWeekForm(forms.ModelForm):
+    
+    class Meta:
+        model = Week
+        fields = '__all__'
+
+class StudyMaterialForm(forms.ModelForm):
+    class Meta:
+        model = Files
+        fields = '__all__'

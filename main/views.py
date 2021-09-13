@@ -6,7 +6,7 @@ from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.conf import settings
-from .models import User
+from .models import Files, User
 
 # Create your views here.
 def index(request):
@@ -51,7 +51,7 @@ def dashboard(request):
         elif request.user.user_type==2:
             teacher=request.user.teacher
             context={
-                        
+                        'courses': teacher.all_courses,
                         'teacher': teacher, 
                     }
             if request.method == 'GET':
@@ -91,11 +91,11 @@ def browse(request):
     }
     return render(request, 'browse.html', context)
 
-def course(request, code):
+def course(request, id):
     if request.method=='POST':
         student = models.Student.objects.get(user=request.user)
-        code = request.POST.get('course_code')
-        course = models.Course.objects.get(code=code)
+        id = request.POST.get('course_id')
+        course = models.Course.objects.get(id=id)
         try:
             s = models.Subscription.objects.get(student=student, course=course)
             
@@ -106,7 +106,7 @@ def course(request, code):
         except:
             s = models.Subscription(student=student, course=course).save()
     context={
-        'course' : models.Course.objects.get(code=code)
+        'course' : models.Course.objects.get(id=id)
     }
     return render(request, 'course.html', context)
 
@@ -140,10 +140,10 @@ def userlogin(request):
 def university(request, name):
     return render(request, 'university.html', { 'university': models.University.objects.get(name=name)})
 
-def study(request, code):
+def study(request, id):
     
 
-    s=models.Course.objects.get(code=code)
+    s=models.Course.objects.get(id=id)
     context={
         'subject': s,
         'subscription': models.Subscription.objects.get(course=s, student=request.user.student),
@@ -159,10 +159,9 @@ class Comment(View):
     
     def post(self, request):
         cmnt = request.POST.get('comment')
-        code = request.POST.get('course_code')
-        print(code)
+        id = request.POST.get('course_id')
         from_person = request.user.student
-        in_course = models.Course.objects.get(code=code)
+        in_course = models.Course.objects.get(id=id)
         models.FAQ(comment=cmnt, from_person=from_person, in_course=in_course).save()
         return HttpResponse(200)
 
@@ -177,8 +176,8 @@ class Comment(View):
 def quiz(request, week_id):
     if request.method=='POST':
         print(request.POST)
-        code = models.Week.objects.get(id=week_id).course.code
-        return redirect(reverse('study',  kwargs={'code':code}))
+        id = models.Week.objects.get(id=week_id).course.id
+        return redirect(reverse('study',  kwargs={'id':id}))
     week = models.Week.objects.get(id=week_id)
     questions = week.Questions
     context={
@@ -243,3 +242,32 @@ def teacher_register(request):
         'tform': forms.TeacherRegistrationForm(),
     }
     return render(request, 'teacher/register.html', context)
+
+
+def add_course(request):
+    if request.method=='POST':
+        cform = forms.AddCourseForm(request.POST)
+        fform = forms.StudyMaterialForm(request.POST, request.FILES)
+        wform = forms.AddWeekForm(request.POST)
+        if cform.is_valid():
+            temp=cform.save(commit=False)
+            temp.uploaded_by=request.user.teacher
+            temp.save()
+        if fform.is_valid():
+            temp=fform.save(commit=False)
+            temp.save()
+        if wform.is_valid():
+            temp=wform.save(commit=False)
+            temp.save()
+    cform = forms.AddCourseForm()
+    wform = forms.AddWeekForm()
+    wform.fields['course'].queryset = request.user.teacher.all_courses
+    fform = forms.StudyMaterialForm()
+    fform.fields['course'].queryset = request.user.teacher.all_courses
+    fform.fields['week'].queryset = request.user.teacher.all_weeks
+    context = {
+        'cform': cform,
+        'wform': wform,
+        'fform': fform,
+    }
+    return render(request, 'teacher/add_course.html', context)

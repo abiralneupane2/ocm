@@ -8,13 +8,16 @@ urlpatterns = [
     path('', views.index, name='index'),
     path('dashboard/', views.dashboard, name='dashboard'),
     path('browse/', views.browse, name='browse'),
-    path('course/<str:code>/', views.course, name='course_details'),
+    path('course/<str:id>/', views.course, name='course_details'),
     path('login/', views.userlogin, name='login'),
-    path('study/<str:code>/', views.study, name='study'),
+    path('study/<str:id>/', views.study, name='study'),
     path('comment/', views.Comment.as_view(), name='comment'),
     path('quiz/<int:week_id>/', views.quiz, name='quiz'),
     path('register/', views.register, name='register'),
     path('teacher_register/', views.teacher_register, name='teacher_register'),
+    path('add_course/', views.add_course, name='add_course'),
+    
+
     
     
 

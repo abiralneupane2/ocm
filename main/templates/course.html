@@ -9,11 +9,11 @@
         <ul class="list-group list-group-flush">
             <li class="list-group-item">Category: {{course.get_category_display}}</li>
 
-            <li class="list-group-item">Affiliated to: {{course.uploaded_by}}</li>
+            <li class="list-group-item">Affiliated to: {{course.uploaded_by.user.first_name}} {{course.uploaded_by.user.last_name}}</li>
             
           </ul>
     </p>
-    {% if request.user.is_authenticated %}
+    {% if request.user.user_type is 1 %}
     <p class="lead">
       <form method="POST" id="subscribe">
         {% csrf_token %}

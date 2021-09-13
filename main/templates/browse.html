@@ -18,7 +18,7 @@
         {% for course in courses %}
         
         <tr>
-            <td><a class="text-decoration-none" href="{% url 'course_details' course.code %}">{{course.name}}</a></td>
+            <td><a class="text-decoration-none" href="{% url 'course_details' course.id %}">{{course.name}}</a></td>
             <td>{{course.get_category_display}}</td>
             <td>{{course.uploaded_by}}</td>
         </tr>

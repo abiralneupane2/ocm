@@ -254,7 +254,7 @@
                             {% for course in courses %}
                             
                             <tr>
-                                <td><a class="text-decoration-none" href="{% url 'course_details' course.code %}">{{course.name}}</a></td>
+                                <td><a class="text-decoration-none" href="{% url 'course_details' course.id %}">{{course.name}}</a></td>
                                 <td>{{course.subscriptions}}</td>
                                 <td>{{course.approved}}</td>
                             </tr>
@@ -289,9 +289,11 @@
 } );
 
 function add_course(){
+    var rdrct = "{% url 'add_course' %}"
     approved = "{{teacher.approved}}"
-    if(approved){
-
+    
+    if(approved==true){
+        window.location.href=rdrct
     }
     else{
         alert("You have not been approved yet.")
