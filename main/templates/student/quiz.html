@@ -1,45 +1,49 @@
 {% extends './studying.html' %}
 {% block content %}
-<form method="POST">
-    {%csrf_token%}
-    {% for question in questions %}
-    {{question.question}}
-    <div class="form-check"></div>
-    <input class="form-check-input" type="radio" id="{{question.id}}-1" name="{{question.id}}"
-        value="{{question.option_one}}">
-    <label class="form-check-label" for="{{question.id}}-1">
-        {{question.option_one}}
-    </label>
+{% if questions %}
+<div class="container">
+    <form method="POST">
+        {%csrf_token%}
+        {% for question in questions %}
+        {{question.question}}
+        <div class="form-check">
+            <input class="form-check-input" type="radio" id="{{question.id}}-1" name="{{question.id}}"
+                value="{{question.option_one}}">
+            <label class="form-check-label" for="{{question.id}}-1">
+                {{question.option_one}}
+            </label>
+        </div>
+        <div class="form-check">
 
+            <input class="form-check-input" type="radio" id="{{question.id}}-2" name="{{question.id}}"
+                value="{{question.option_two}}">
+            <label class="form-check-label" for="{{question.id}}-2">
+                {{question.option_two}}
+            </label>
+        </div>
+        <div class="form-check">
 
-    </div>
-    <div class="form-check">
+            <input class="form-check-input" type="radio" id="{{question.id}}-3" name="{{question.id}}"
+                value="{{question.option_three}}">
+            <label class="form-check-label" for="{{question.id}}-3">
+                {{question.option_three}}
+            </label>
+        </div>
+        <div class="form-check">
 
-        <input class="form-check-input" type="radio" id="{{question.id}}-2" name="{{question.id}}"
-            value="{{question.option_two}}">
-        <label class="form-check-label" for="{{question.id}}-2">
-            {{question.option_two}}
-        </label>
-    </div>
-    <div class="form-check">
-
-        <input class="form-check-input" type="radio" id="{{question.id}}-3" name="{{question.id}}"
-            value="{{question.option_three}}">
-        <label class="form-check-label" for="{{question.id}}-3">
-            {{question.option_three}}
-        </label>
-    </div>
-    <div class="form-check">
-
-        <input class="form-check-input" type="radio" id="{{question.id}}-4" name="{{question.id}}"
-            value="{{question.option_four}}">
-        <label class="form-check-label" for="{{question.id}}-4">
-            {{question.option_four}}
-        </label>
-    </div>
-    {% endfor %}
-    <button type="submit">Submit</button>
-</form>
+            <input class="form-check-input" type="radio" id="{{question.id}}-4" name="{{question.id}}"
+                value="{{question.option_four}}">
+            <label class="form-check-label" for="{{question.id}}-4">
+                {{question.option_four}}
+            </label>
+        </div>
+        {% endfor %}
+        <button type="submit">Submit</button>
+    </form>
+</div>
+{% else %}
+<p>Quiz not ready yet.</p>
+{%endif%}
 <script>
 
 </script>

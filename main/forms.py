@@ -82,7 +82,7 @@ class CourseEditForm(forms.ModelForm):
 class WeekEditForm(forms.ModelForm):
     class Meta:
         model = Week
-        exclude = ['course', ]
+        exclude = ['course', 'final', ]
 
 class ScheduleMeetingForm(forms.ModelForm):
     meeting_on = forms.DateTimeField(
@@ -103,3 +103,7 @@ class QuizManageForm(forms.ModelForm):
         exclude = ['course',]
     field_order = ['question', 'option_one', 'option_two', 'option_three', 'option_four','answer', 'difficulty']
 
+class IndexMessageForm(forms.ModelForm):
+    class Meta:
+        model = models.Message
+        exclude = ['timestamp',]

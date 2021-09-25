@@ -1,6 +1,19 @@
 {% extends './base.html'%}
 {% load static %}
 {% block content %}
+<style>
+    .fill {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden
+}
+.fill img {
+    flex-shrink: 0;
+    min-width: 100%;
+    min-height: 100%
+}
+</style>
 <section id="about" class="about-area pt-115">
     <div class="container">
         <div class="row justify-content-center">
@@ -14,8 +27,8 @@
         </div> <!-- row -->
         <div class="row">
             <div class="col-lg-12">
-                <div class="about-image mt-60 wow fadeIn" data-wow-duration="1s" data-wow-delay="0.5s">
-                    <img src="{% static 'images/about.png'%}" alt="about">
+                <div class="about-image mt-60 wow fadeIn fill" data-wow-duration="1s" data-wow-delay="0.5s">
+                    <img src="{% static 'images/online-education-blog.jpg'%}" alt="about">
                 </div> <!-- about image -->
             </div>
         </div> <!-- row -->
@@ -115,7 +128,7 @@
                             <div class="row">
                                 <div class="col-lg-6">
                                     <div class="our-services-image mt-50">
-                                        <img src="{%static 'images/our-service-1.jpg'%}" alt="service">
+                                        <img src="{%static 'images/personal-growth.jpeg'%}" alt="service">
                                     </div> <!-- our services image -->
                                 </div>
                                 <div class="col-lg-6">
@@ -259,27 +272,27 @@
     </div> <!-- container -->
 </section>
 
-<div class="contact-wrapper-form pt-115  wow fadeInUpBig" data-wow-duration="1s" data-wow-delay="0.5s" style="visibility: visible; animation-duration: 1s; animation-delay: 0.5s; animation-name: fadeInUpBig;">
+<div class="container contact-wrapper-form pt-115  wow fadeInUpBig" data-wow-duration="1s" data-wow-delay="0.5s" style="visibility: visible; animation-duration: 1s; animation-delay: 0.5s; animation-name: fadeInUpBig;">
     <h4 class="contact-title pb-10"><i class="lni-envelope"></i> Leave <span>A Message.</span></h4>
     
-    <form id="contact-form" action="assets/contact.php" method="post">
+    <form id="contact-form" method="post">
         <div class="row">
             <div class="col-md-6">
                 <div class="contact-form mt-45">
                     <label>Enter Your Name</label>
-                    <input type="text" name="name" placeholder="Full Name">
+                    {{form.full_name}}
                 </div> <!-- contact-form -->
             </div>
             <div class="col-md-6">
                 <div class="contact-form mt-45">
                     <label>Enter Your Email</label>
-                    <input type="email" name="email" placeholder="Email">
+                    {{form.email}}
                 </div> <!-- contact-form -->
             </div>
             <div class="col-md-12">
                 <div class="contact-form mt-45">
                     <label>Your Message</label>
-                    <textarea name="message" placeholder="Enter your message..."></textarea>
+                    {{form.message}}
                 </div> <!-- contact-form -->
             </div>
             <p class="form-message"></p>

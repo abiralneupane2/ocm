@@ -14,20 +14,32 @@
     integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
 </head>
 <body>
+    <div class="container">
     {% block content %}
     <h1>{{week.course}}</h1>
     <br>
     <h3>{{week.title}}</h3>
+    {% if week.instructions %}<h3>Instructions</h3>
+    <p>{{week.instructions}}</p><br>{% endif %}
     <p>{{ week.description }}</p>
+    
     <h5>Materials</h5>
-    <ul>
+    {% if files %}
+    <ul class="list-group list-group-flush">
         {% for f in files %}
-            <li>{{f.file.url}}</li>
+            <li  class="list-group-item"><a href="{{f.file.url}}">{{f.file}}</a> <a href="{{f.file.url}}" download><button class="btn btn-outline-info" style="float: right;">Download</button></a></li>
         {% endfor %}
     </ul>
+    {% else %}
+    <p>Tutor hasn't posted any files.</p>
+    {% endif %}
     {% if subscription.quiz_approve %}
-        <a href="{% url 'take_quiz' week.id %}"><button>Take Quiz</button></a>
+        <a href="{% url 'take_quiz' week.id %}"><button class="btn btn-outline-primary">Take Quiz</button></a>
+    {% else %}
+        <button class="btn btn-outline-primary" disabled>Take Quiz</button>
+        <p>Talk to tutor to get access to quiz.</p>
     {% endif %}
     {% endblock %}
+    </div>
 </body>
 </html>

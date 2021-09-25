@@ -1,5 +1,7 @@
 {% extends '../base.html'%}
+{% load static %}
 {% load tags%}
+
 {% block content %}
 <div class="mt-5 container">
   <div class="main-body">
@@ -13,7 +15,11 @@
         <div class="card">
           <div class="card-body">
             <div class="d-flex flex-column align-items-center text-center">
-              {% if request.user.student.photo %}<img src="{{request.user.student.photo.url}}" alt="Admin" class="rounded-circle" width="150">{% endif %}
+              {% if request.user.student.photo %}
+              <img src="{{request.user.student.photo.url}}" class="rounded-circle" width="150">
+              {% else %}
+              <img src="{% static '/images/avatar.png' %}" class="rounded-circle" width="150">
+              {% endif %}
               <div class="mt-3">
                 <h4>{{request.user}}</h4>
                 {% if request.user.student.bio%}<p class="text-secondary mb-1">{{request.user.student.bio}}</p>{% endif %}
@@ -27,12 +33,12 @@
         <div class="card mt-3">
           <p class="text-center"><strong>Available meetings</strong></p>
           <ul class="list-group list-group-flush">
-          {% for m in pending_meetings %}
+            {% for m in pending_meetings %}
             <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
               <h6 class="mb-0">{{m.week}}</h6>
               <span class="text-secondary">{{m.meeting_on}}</span>
             </li>
-          {% endfor %}
+            {% endfor %}
           </ul>
         </div>
       </div>
@@ -41,75 +47,75 @@
 
         <div class="card mb-3">
           <div class="card-body">
-            <form method="POST" action="{% url 'dashboard'%}"  enctype="multipart/form-data">
+            <form method="POST" action="{% url 'dashboard'%}" enctype="multipart/form-data">
               {% csrf_token %}
-            <div class="row">
-              <div class="col-sm-3">
-                <h6 class="mb-0">Photo</h6>
+              <div class="row">
+                <div class="col-sm-3">
+                  <h6 class="mb-0">Photo</h6>
+                </div>
+                <div class="col-sm-9 text-secondary">
+                  {{profile_edit_form.photo}}
+                </div>
               </div>
-              <div class="col-sm-9 text-secondary">
-                {{profile_edit_form.photo}}
+              <hr>
+              <div class="row">
+                <div class="col-sm-3">
+                  <h6 class="mb-0">First Name</h6>
+                </div>
+                <div class="col-sm-9 text-secondary">
+                  {{user_edit_form.first_name}}
+                </div>
               </div>
-            </div>
-            <hr>
-            <div class="row">
-              <div class="col-sm-3">
-                <h6 class="mb-0">First Name</h6>
+              <hr>
+              <div class="row">
+                <div class="col-sm-3">
+                  <h6 class="mb-0">Last Name</h6>
+                </div>
+                <div class="col-sm-9 text-secondary">
+                  {{user_edit_form.last_name}}
+                </div>
+                <div class="col-sm-3">
+                  <h6 class="mb-0">Email</h6>
+                </div>
+                <div class="col-sm-9 text-secondary">
+                  {{user_edit_form.email}}
+                </div>
               </div>
-              <div class="col-sm-9 text-secondary">
-                {{user_edit_form.first_name}}
+              <hr>
+              <div class="row">
+                <div class="col-sm-3">
+                  <h6 class="mb-0">Bio</h6>
+                </div>
+                <div class="col-sm-9 text-secondary">
+                  {{profile_edit_form.bio}}
+                </div>
               </div>
-            </div>
-            <hr>
-            <div class="row">
-              <div class="col-sm-3">
-                <h6 class="mb-0">Last Name</h6>
+              <hr>
+              <div class="row">
+                <div class="col-sm-3">
+                  <h6 class="mb-0">Address</h6>
+                </div>
+                <div class="col-sm-9 text-secondary">
+                  {{profile_edit_form.address}}
+                </div>
               </div>
-              <div class="col-sm-9 text-secondary">
-                {{user_edit_form.last_name}}
+              <hr>
+              <div class="row">
+                <div class="col-sm-3">
+                  <h6 class="mb-0">Phone</h6>
+                </div>
+                <div class="col-sm-9 text-secondary">
+                  {{profile_edit_form.phone}}
+                </div>
               </div>
-              <div class="col-sm-3">
-                <h6 class="mb-0">Email</h6>
-              </div>
-              <div class="col-sm-9 text-secondary">
-                {{user_edit_form.email}}
-              </div>
-            </div>
-            <hr>
-            <div class="row">
-              <div class="col-sm-3">
-                <h6 class="mb-0">Bio</h6>
-              </div>
-              <div class="col-sm-9 text-secondary">
-                {{profile_edit_form.bio}}
-              </div>
-            </div>
-            <hr>
-            <div class="row">
-              <div class="col-sm-3">
-                <h6 class="mb-0">Address</h6>
-              </div>
-              <div class="col-sm-9 text-secondary">
-                {{profile_edit_form.address}}
-              </div>
-            </div>
-            <hr>
-            <div class="row">
-              <div class="col-sm-3">
-                <h6 class="mb-0">Phone</h6>
-              </div>
-              <div class="col-sm-9 text-secondary">
-                {{profile_edit_form.phone}}
-              </div>
-            </div>
-            <hr>
-            <div class="row">
-              <div class="col-sm-12">
-                
+              <hr>
+              <div class="row">
+                <div class="col-sm-12">
+
                   <input type="submit">
-                
+
+                </div>
               </div>
-            </div>
             </form>
           </div>
         </div>
@@ -175,27 +181,50 @@
           <div class="col-sm mb-3">
             <div class="card h-100">
               <div class="card-body">
-                <h6 class="d-flex align-items-center mb-3">My Subscriptions</h6><br>
-                {% for sub in subscriptions %}{% if sub.flag %}
-                <strong>{{sub.course}}<br> Next unit: {{sub.next_unit}}<br><a href="{% url 'study' sub.course.id %}"><i
-                      class="material-icons mr-2">continue</i> </a> </strong>
-                <div class="progress mb-3" style="height: 5px">
-                  <div class="progress-bar bg-primary" role="progressbar" style="width: 80%"
-                    aria-valuenow="{{sub|get_percentage}}" aria-valuemin="0" aria-valuemax="100"></div>
-                </div>
+                <h6 class="d-flex align-items-center mb-3">My Subscriptions</h6>
+                <table class="table table-bordered">
+                  <thead>
+                    <tr>
+                      <th>Course</th>
+                      <th>Current Week</th>
+                      <th>Next Week</th>
+                      <th>Progress</th>
+                    </tr>
+                  </thead>
+                  {% for sub in subscriptions %}
+                  {% if not sub.completed %}
+                    <tr>
+
+                      <td><a href="{% url 'study' sub.course.id %}">{{sub.course}}</a></td>
+                      <td>{{sub.progress.title}}</td>
+                      <td>{{sub.next_unit.title}}</td>
+                      <td>{{sub|get_percentage}}</td>
+                    </tr>
+                  {% endif %}
+                  {% endfor %}
+                </table>
                 <br>
-                {% endif %}
+                <h6 class="d-flex align-items-center mb-3">Completed Courses</h6>
+                {% if completed %}
+                {% for sub in completed %}
+        
+                  <a href="{% url 'study' sub.course.id %}">{{sub.course}}</a>
+                  
                 {% endfor %}
+                {% else %}
+                <p>You donot have completed courses.</p>
+                {% endif %}
               </div>
             </div>
           </div>
-  
+
         </div>
+
         {% endif %}
       </div>
-      
 
-      
+
+
 
 
 

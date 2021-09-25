@@ -19,11 +19,16 @@
             {% for week in weeks %}
             <tr>
                 <td>{{week.week_no}}</td>
+                {%if subscription|is_available:week.week_no  %}
                 <td><a class="text-decoration-none" href="{% url 'start_lesson' week.id %}" >{{week.title}}</a></td>
+                {% else %}
+                <td><a class="text-decoration-none" style="pointer-events: none; color:black" href="#" >{{week.title}}</a></td>
+                {% endif %}
                 <td>3</td>
                 
             </tr>
             {% endfor %}
+            
         </tbody>
     </table>
 </div>

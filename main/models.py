@@ -37,11 +37,11 @@ class Student(models.Model):
         return Meeting.objects.filter(week__in=subs)
 
     def get_unlocked_weeks(self, subscription):
-        upto = subscription.progress+1
+        upto = subscription.progress.week_no+1
         return Week.objects.filter(course=subscription.course, week_no__level__lt=upto)
 
     def get_locked_weeks(self, subscription):
-        upto = subscription.progress
+        upto = subscription.progress.week_no
         return Week.objects.filter(course=subscription.course, week_no__level__gt=upto)
 
     def __str__(self):
@@ -132,7 +132,7 @@ class Week(models.Model):
     title = models.CharField(max_length=100, default="title")
     description = models.TextField(max_length=1000, null=True, blank=True)
     instructions = models.TextField(max_length=1000, null=True, blank=True)
-    
+    final = models.BooleanField(default=False)
     @staticmethod
     def get_files(week_id):
         print(week_id)
@@ -147,8 +147,8 @@ class Week(models.Model):
 class Subscription(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
-    completion = models.IntegerField(default=0)
     subscribed_on = models.DateField(auto_now_add=True)
+    completed = models.BooleanField(default=False)
     flag = models.BooleanField(auto_created=True,default=True)
     quiz_approve = models.BooleanField(auto_created=False, default=False)
     progress = models.ForeignKey(Week, on_delete=models.CASCADE)
@@ -161,7 +161,13 @@ class Subscription(models.Model):
     
     @property
     def next_unit(self):
-        return Week.objects.get(course=self.course,week_no=(self.progress.week_no+1)).title
+        try:
+            return Week.objects.get(course=self.course,week_no=(self.progress.week_no+1))
+        except:
+            if self.progress.final:
+                return self
+            else:
+                return self
 
     def week_duration(self):
         diff = datetime.date.today()-datetime.date(year=self.week_begin.year, month=self.week_begin.month, day=self.week_begin.day)
@@ -235,3 +241,12 @@ class Meeting(models.Model):
     requested_by = models.ForeignKey(User, on_delete=models.CASCADE)
     completed = models.BooleanField(default=False)
     week = models.ForeignKey(Week, on_delete=models.CASCADE)
+
+class Message(models.Model):
+    message = models.TextField(max_length=1000)
+    full_name = models.CharField(max_length=100)
+    email = models.EmailField()
+    timestamp = models.DateField(auto_now_add=True)
+
+    def __str__(self):
+        return self.message

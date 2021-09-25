@@ -13,10 +13,16 @@ from main.forms import QuizManageForm
 
 # Create your views here.
 def index(request):
+    form = forms.IndexMessageForm()
+    if request.method == 'POST':
+        form = forms.IndexMessageForm(request.POST)
+        if form.is_valid():
+            form.save()
     context = {
         'students': models.Student.objects.all().count(),
         'courses': models.Course.objects.all().count(),
-        'teachers': models.Teacher.objects.all().count()
+        'teachers': models.Teacher.objects.all().count(),
+        'form': form
     }
     return render(request, 'index.html', context)
 
@@ -28,6 +34,7 @@ def dashboard(request):
             
             context={
                         'subscriptions': request.user.student.get_subscriptions(),
+                        'completed': models.Subscription.objects.filter(student=student, completed=True),
                         'student': student, 
                         'pending_meetings': student.get_pending_meetings(),
                     }
@@ -394,14 +401,21 @@ def take_quiz(request, week_id):
             if a==t.right_answer:
                 count=count+1
         sub = models.Subscription.objects.get(student=request.user.student, course=wk.course)
+
         if count>(q.count()/2):
-            
-            sub.progress=sub.progress+1
-            sub.save()
+            if sub.progress==wk:
+                if sub.progress.final:
+                    sub.completed=True
+                    sub.save()
+                else:
+                    sub.progress=sub.next_unit
+                    sub.quiz_approve=False
+                    sub.save()
             return HttpResponse("<h1 class='text-center'>Congratulations</h1><br><p>You have passed with score "+ str(count) + ".</p> Go <a href="+reverse('study',kwargs={'id':wk.course.id})+">back</a>")
         else:
-            sub.quiz_approve=False
-            sub.save()
+            if sub.progress==wk:
+                sub.quiz_approve=False
+                sub.save()
             return HttpResponse("<h1 class='text-center'>Sorry</h1><br><p>You didn't pass. Your score is "+ str(count) + ".</p> Go <a href="+reverse('study',kwargs={'id':wk.course.id})+">back</a> and try again.")
     
     context = {

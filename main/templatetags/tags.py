@@ -29,13 +29,21 @@ def get_files_url(week_id):
         return []
 
 @register.filter
-def get_value(week):
-    return "value"
+def is_available(sub, week_no):
+    print("progress"+str(sub.progress.week_no))
+    print("week"+ str(week_no))
+    if week_no<=sub.progress.week_no:
+        
+        return True
+    else:
+        
+        return False
 
 @register.filter
 def get_percentage(sub):
     try:
-        return sub.progress/sub.total_weeks*100
+        val = sub.progress.week_no/sub.total_weeks*100
+        return str(round(val, 2))
     except:
         return 0
 @register.simple_tag
