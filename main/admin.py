@@ -7,7 +7,6 @@ from .models import Teacher
 from django.contrib.auth.admin import UserAdmin
 from .models import User
 # Register your models here.
-admin.site.register(models.University)
 
 admin.site.register(models.Student)
 admin.site.register(models.Subscription)

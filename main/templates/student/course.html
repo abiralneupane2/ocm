@@ -1,4 +1,4 @@
-{% extends './base.html'%}
+{% extends '../base.html'%}
 {% load tags%}
 {% block content %}
 <div class="jumbotron">
@@ -9,7 +9,7 @@
         <ul class="list-group list-group-flush">
             <li class="list-group-item">Category: {{course.category}}</li>
 
-            <li class="list-group-item">Affiliated to: {{course.uploaded_by.user.first_name}} {{course.uploaded_by.user.last_name}}</li>
+            <li class="list-group-item">Uploaded By: {{course.uploaded_by.user.first_name}} {{course.uploaded_by.user.last_name}}</li>
             
           </ul>
     </p>
@@ -19,7 +19,7 @@
         {% csrf_token %}
         <input type="hidden" name="course_id" value="{{course.id}}">
       </form>
-      <button type="submit" class="btn btn-outline-success btn-light" form="subscribe" value="Submit">{% check_subscription course request.user as subscription %}{% if subscription %} Unsubscribe {% else %}  Subscribe {% endif %}</button>
+      {% check_subscription course request.user as subscription %}{% if subscription %} <button type="submit" class="btn btn-outline-success btn-light" form="subscribe" value="Submit" onsubmit="return confirm('Do you really want to unsubscribe?');"> Unsubscribe </button>{% else %}  <button type="submit" class="btn btn-outline-success btn-light" form="subscribe" value="Submit"> Subscribe </button>{% endif %}</button>
     </p>
     {% endif %}
   </div>

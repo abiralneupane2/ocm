@@ -2,6 +2,8 @@
 from django.db import models
 
 from django.contrib.auth.models import AbstractUser
+from django.db.models.fields import DateTimeField
+import datetime    
 # Create your models here.
 
 GRADES = [
@@ -16,6 +18,8 @@ class User(AbstractUser):
   )
 
   user_type = models.PositiveSmallIntegerField(choices=USER_TYPE_CHOICES, default=3)
+  def __str__(self):
+      return self.first_name + " " + self.last_name
 
 class Student(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -25,17 +29,29 @@ class Student(models.Model):
     bio = models.CharField(null=True, max_length=100, blank=True)
 
     def get_subscriptions(self):
-        return Subscription.objects.filter(student=self)
+        return Subscription.objects.filter(student=self, flag=True)
     
+
+    def get_pending_meetings(self):
+        subs = self.get_subscriptions().values('progress')
+        return Meeting.objects.filter(week__in=subs)
+
+    def get_unlocked_weeks(self, subscription):
+        upto = subscription.progress+1
+        return Week.objects.filter(course=subscription.course, week_no__level__lt=upto)
+
+    def get_locked_weeks(self, subscription):
+        upto = subscription.progress
+        return Week.objects.filter(course=subscription.course, week_no__level__gt=upto)
+
     def __str__(self):
-        return self.user.username
+        return self.user.__str__()
 
 
 class Teacher(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     cv = models.FileField(upload_to='cvs/')
     bio = models.CharField(null=True, max_length=100, blank=True)
-    
     address = models.CharField(max_length=100, blank=True)
     photo = models.FileField(null=True, blank=True)
     phone = models.CharField(null=True, max_length=20, blank=True)
@@ -52,14 +68,9 @@ class Teacher(models.Model):
 
 
     def __str__(self):
-        return self.user.username
-
-class University(models.Model):
-    name = models.CharField(max_length=100)
+        return self.user.first_name + " " + self.user.last_name
 
 
-    def __str__(self):
-        return self.name
 
 class Categories(models.Model):
     name = models.CharField(max_length=20)
@@ -77,7 +88,8 @@ class Course(models.Model):
     @property
     def subscriptions(self):
         return Subscription.objects.filter(course=self).count()
-
+    def get_all_questions(self):
+        return Question.objects.filter(course=self).order_by('difficulty',)
     @property
     def faq(self):
         comments = FAQ.objects.filter(in_course=self)
@@ -114,15 +126,34 @@ class Course(models.Model):
     def __str__(self):
         return self.name
 
+class Week(models.Model):
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    week_no = models.IntegerField()
+    title = models.CharField(max_length=100, default="title")
+    description = models.TextField(max_length=1000, null=True, blank=True)
+    instructions = models.TextField(max_length=1000, null=True, blank=True)
+    
+    @staticmethod
+    def get_files(week_id):
+        print(week_id)
+        return Files.objects.filter(week__id=week_id).only("file")
 
+    @property
+    def Questions(self):
+        return Question.objects.filter(course=self.course)
+    def __str__(self):
+        return self.course.name + " week " + str(self.week_no)
 
 class Subscription(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
     completion = models.IntegerField(default=0)
     subscribed_on = models.DateField(auto_now_add=True)
-    flag = models.BooleanField(auto_created=True, default=True)
-    progress = models.IntegerField(default=0)
+    flag = models.BooleanField(auto_created=True,default=True)
+    quiz_approve = models.BooleanField(auto_created=False, default=False)
+    progress = models.ForeignKey(Week, on_delete=models.CASCADE)
+    quiz_marks = models.IntegerField(default=0)
+    week_begin = models.DateField(auto_now_add=True, null=True)
 
     @property
     def total_weeks(self):
@@ -130,7 +161,11 @@ class Subscription(models.Model):
     
     @property
     def next_unit(self):
-        return Week.objects.get(course=self.course,week_no=(self.progress+1)).title
+        return Week.objects.get(course=self.course,week_no=(self.progress.week_no+1)).title
+
+    def week_duration(self):
+        diff = datetime.date.today()-datetime.date(year=self.week_begin.year, month=self.week_begin.month, day=self.week_begin.day)
+        return diff.days
 
     def __str__(self):
         return self.course.name + " by " + self.student.user.username
@@ -141,7 +176,7 @@ class Certificate(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
     date = models.DateField(auto_now_add=True)
     grade = models.CharField(choices=GRADES, max_length=2)
-    university = models.ForeignKey(University, on_delete=models.CASCADE)
+    teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE, null=True)
 
 
     def __str__(self):
@@ -152,22 +187,14 @@ class CertificateCourse(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
 
 
-class Week(models.Model):
-    course = models.ForeignKey(Course, on_delete=models.CASCADE)
-    week_no = models.IntegerField()
-    title = models.CharField(max_length=100, default="title")
-    description = models.TextField(max_length=1000, null=True)
 
-    @property
-    def Questions(self):
-        return Question.objects.filter(course=self.course)
-    def __str__(self):
-        return self.course.name + " week " + str(self.week_no)
 
 class Files(models.Model):
     file = models.FileField()
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
-    week = models.OneToOneField(Week, on_delete=models.CASCADE, null=True)
+    week = models.ForeignKey(Week, on_delete=models.CASCADE, null=True)
+
+    
 
 class FAQ(models.Model):
     from_person = models.ForeignKey(Student, on_delete=models.CASCADE)
@@ -189,6 +216,22 @@ class Question(models.Model):
     option_four = models.CharField(max_length=20)
     answer = models.IntegerField(default=1)
 
+    @property
+    def right_answer(self):
+        if self.answer==1:
+            return self.option_one
+        elif self.answer==2:
+            return self.option_two
+        if self.answer==3:
+            return self.option_three
+        if self.answer==4:
+            return self.option_four
+
     def __str__(self):
         return self.question
 
+class Meeting(models.Model):
+    meeting_on = models.DateTimeField()
+    requested_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    completed = models.BooleanField(default=False)
+    week = models.ForeignKey(Week, on_delete=models.CASCADE)

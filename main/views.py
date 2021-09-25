@@ -1,3 +1,4 @@
+from django.forms.formsets import formset_factory
 from . import models, forms
 from django.shortcuts import render, HttpResponse, redirect
 from django.urls import reverse
@@ -6,14 +7,16 @@ from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.conf import settings
-from .models import Files, User
+from django.forms.models import modelformset_factory
+from .models import Files, Student, Subscription, User
+from main.forms import QuizManageForm
 
 # Create your views here.
 def index(request):
     context = {
         'students': models.Student.objects.all().count(),
         'courses': models.Course.objects.all().count(),
-        'universities': models.University.objects.all().count()
+        'teachers': models.Teacher.objects.all().count()
     }
     return render(request, 'index.html', context)
 
@@ -26,6 +29,7 @@ def dashboard(request):
             context={
                         'subscriptions': request.user.student.get_subscriptions(),
                         'student': student, 
+                        'pending_meetings': student.get_pending_meetings(),
                     }
             if request.method == 'GET':
                 if request.GET.get('edit'):
@@ -87,28 +91,58 @@ def browse(request):
         'courses' : models.Course.objects.all(),
         
         'categories': models.Course.get_all_categories(),
-        'universities': models.University.objects.all()
+        'teachers': models.Teacher.objects.all()
     }
     return render(request, 'browse.html', context)
 
 def course(request, id):
-    if request.method=='POST':
-        student = models.Student.objects.get(user=request.user)
-        id = request.POST.get('course_id')
-        course = models.Course.objects.get(id=id)
-        try:
-            s = models.Subscription.objects.get(student=student, course=course)
+    course = models.Course.objects.get(id=id)
+    if request.user.user_type==1:
+        if request.method=='POST':
+            student = models.Student.objects.get(user=request.user)
             
-            s.flag = not s.flag
-            
-            s.save()
-            
-        except:
-            s = models.Subscription(student=student, course=course).save()
-    context={
-        'course' : models.Course.objects.get(id=id)
-    }
-    return render(request, 'course.html', context)
+            try:
+                s = models.Subscription.objects.get(student=student, course=course)
+                
+                s.flag = not s.flag
+                
+                s.save()
+                
+            except:
+                first_week = models.Week.objects.get(course=course,week_no=1)
+                s = models.Subscription(student=student, course=course, progress=first_week, flag=True).save()
+        context={
+            'course' : models.Course.objects.get(id=id)
+        }
+        return render(request, 'student/course.html', context)
+
+    elif request.user.user_type==2:
+        errmsg=" "
+        if request.method=="POST":
+            mtform = forms.ScheduleMeetingForm(request.POST)
+            print(mtform)
+            if mtform.is_valid():
+                f = mtform.save(commit=False)
+                f.requested_by=request.user
+                print(mtform)
+                f.save()
+            else:
+
+                errmsg=mtform.errors
+                print(errmsg)
+
+        mtform = forms.ScheduleMeetingForm()
+        mtform.fields['week'].queryset = models.Week.objects.filter(course=course)
+        context ={
+            'course': course,
+            'weeks': models.Week.objects.filter(course=course),
+            'subscriptions': models.Subscription.objects.filter(course=course),
+            'mtform': mtform,
+            'errmsg': errmsg,
+            'meetings': models.Meeting.objects.filter(requested_by=request.user)
+        }
+        return render(request, 'teacher/course.html', context)
+
 
 def userlogin(request):
     if request.user.is_authenticated:
@@ -151,7 +185,7 @@ def study(request, id):
         
     }
     
-    return render(request, 'sssh.html', context)
+    return render(request, 'student/sssh.html', context)
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -271,3 +305,107 @@ def add_course(request):
         'fform': fform,
     }
     return render(request, 'teacher/add_course.html', context)
+
+def start_lesson(request, week_id):
+    week=models.Week.objects.get(id=week_id)
+    c=week.course
+    files=models.Files.objects.filter(week=week)
+    s = models.Subscription.objects.get(student=request.user.student, course=c)
+    context={
+        'week': week,
+        'files': files,
+        'subscription': s,
+    }
+    return render(request, 'student/studying.html', context)
+
+def edit_course(request, id):
+    course = models.Course.objects.get(id=id)
+    if request.method=="post":
+        cf = forms.CourseEditForm(request.POST)
+        weeks = models.Week.objects.filter(course=course)
+        weekformsetfactory = modelformset_factory(models.Week, forms.WeekEditForm, extra=1)
+        formset = weekformsetfactory(request.POST, queryset=weeks)
+        if cf.is_valid():
+            cf.save()
+        formset.save()
+        return redirect(reverse('course', kwargs={'id':id}))
+    cf = forms.CourseEditForm(instance=course)
+    weekformsetfactory = modelformset_factory(models.Week, forms.WeekEditForm, extra=1)
+    weeks = models.Week.objects.filter(course=course)
+    print(weeks)
+    formset = weekformsetfactory(queryset=weeks)
+    context={
+        'course':course,
+        'edit_course_form': cf,
+        'edit_week_formset': formset,
+    }
+    return render(request, 'teacher/edit_course.html', context)
+
+def quiz_approve(request, course_id, user_id):
+    user=models.User.objects.get(id=user_id)
+    s = models.Subscription.objects.get(course__id=course_id, student=user.student)
+    print(s)
+    if request.method=="GET":
+        context = {
+            'subscription': s,
+            'form': forms.AllowQuizForm(instance=s)
+        }
+        
+        return render(request, 'teacher/quiz_approve.html', context)
+
+    if request.method=='POST':
+        f = forms.AllowQuizForm(request.POST, instance=s)
+        f.save()
+        murl = reverse('course_details', kwargs={'id':course_id})
+        return HttpResponse("Successfully updated. Go <a href="+murl+">back</a>")
+
+def manage_quiz(request, course_id):
+    errmsg = " "
+    course = models.Course.objects.get(id=course_id)
+    qf = modelformset_factory(models.Question, QuizManageForm, extra=1)
+    if request.method=='POST':
+        forms = qf(request.POST, queryset=course.get_all_questions())
+        print(forms)
+        if forms.is_valid():
+            for f in forms.save(commit=False):
+                f.course=course
+                f.save()
+        else:
+            
+            errmsg=forms.non_form_errors
+        
+    qs=course.get_all_questions()
+    forms = qf(queryset=qs)
+    context = {
+        'forms': forms,
+        'course': course,
+        'errmsg': errmsg,
+    }
+    return render(request, 'teacher/manage_quiz.html', context)
+
+def take_quiz(request, week_id):
+    wk = models.Week.objects.get(id=week_id)
+    q = models.Question.objects.filter(difficulty=wk.week_no)
+
+    if request.method == 'POST':
+        count=0
+        for t in q:
+            a=request.POST.get(str(t.id))
+            if a==t.right_answer:
+                count=count+1
+        sub = models.Subscription.objects.get(student=request.user.student, course=wk.course)
+        if count>(q.count()/2):
+            
+            sub.progress=sub.progress+1
+            sub.save()
+            return HttpResponse("<h1 class='text-center'>Congratulations</h1><br><p>You have passed with score "+ str(count) + ".</p> Go <a href="+reverse('study',kwargs={'id':wk.course.id})+">back</a>")
+        else:
+            sub.quiz_approve=False
+            sub.save()
+            return HttpResponse("<h1 class='text-center'>Sorry</h1><br><p>You didn't pass. Your score is "+ str(count) + ".</p> Go <a href="+reverse('study',kwargs={'id':wk.course.id})+">back</a> and try again.")
+    
+    context = {
+        'questions':q,
+        'week':wk
+    }
+    return render(request, 'student/quiz.html', context)

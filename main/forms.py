@@ -3,6 +3,7 @@ from django.forms import fields
 
 from .models import Student, Teacher, Course, Week, Files
 from .models import User
+from main import models
 
 
 
@@ -72,3 +73,33 @@ class StudyMaterialForm(forms.ModelForm):
     class Meta:
         model = Files
         fields = '__all__'
+
+class CourseEditForm(forms.ModelForm):
+     class Meta:
+        model = Course
+        exclude = ['approved', 'uploaded_by','approval_message',]
+
+class WeekEditForm(forms.ModelForm):
+    class Meta:
+        model = Week
+        exclude = ['course', ]
+
+class ScheduleMeetingForm(forms.ModelForm):
+    meeting_on = forms.DateTimeField(
+    input_formats=['%d/%m/%Y %H:%M'],
+    )
+    class Meta:
+        model = models.Meeting
+        fields = ['week', 'meeting_on']
+    
+class AllowQuizForm(forms.ModelForm):
+    class Meta:
+        model = models.Subscription
+        fields = ['quiz_approve',]
+
+class QuizManageForm(forms.ModelForm):
+    class Meta:
+        model = models.Question
+        exclude = ['course',]
+    field_order = ['question', 'option_one', 'option_two', 'option_three', 'option_four','answer', 'difficulty']
+

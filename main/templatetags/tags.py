@@ -21,11 +21,12 @@ def get_course_by_university(university):
         return False
 
 @register.filter
-def get_video_url(week):
+def get_files_url(week_id):
+    print(week_id)
     try:
-        return week.video.video.url
+        return models.Week.get_files(week_id)
     except:
-        return "#"
+        return []
 
 @register.filter
 def get_value(week):

@@ -1,0 +1,16 @@
+{% extends '../base.html' %}
+
+{% block content %}
+<h3>Edit Course {{course}}</h3>
+<form method="POST">
+    {% csrf_token %}
+    {{edit_course_form.as_p}}
+    <input type="submit">
+</form>
+<h5>Weeks</h5>
+<form method="POST">
+    {% csrf_token %}
+    {{edit_week_formset.as_p}}
+    <input type="submit">
+</form>
+{% endblock %}

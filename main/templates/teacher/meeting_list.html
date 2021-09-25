@@ -1,0 +1,7 @@
+<h3>Scheduled Meetings</h3>
+<ul>
+{% for meeting in meetings %}
+    <li>{{meeting.week}} {{meeting.meeting_on}}</li>
+
+{% endfor %}
+</ul>

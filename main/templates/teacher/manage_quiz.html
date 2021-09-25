@@ -1,0 +1,16 @@
+{% extends '../base.html' %}
+{% block content %}
+    <h3 class="text-center">Manage quiz {{course}}</h3>
+    <form method="POST">
+        {{ forms.management_form }}
+        {{errmsg}}
+        {% csrf_token %}
+        {% for form in forms %}
+        {{form.as_p}}<br><br>
+        {% endfor %}
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+    <a href="#" class="float mr-80">
+        <i class="fa fa-plus my-float"></i>
+    </a>
+{% endblock %}

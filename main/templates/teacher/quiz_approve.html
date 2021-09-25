@@ -1,0 +1,13 @@
+{% extends '../base.html'%}
+{% block content %}
+<h3>Subscription Status</h3>
+Student Name: {{subscription.student.user.first_name}} {{subscription.student.user.last_name}}<br>
+Current week: {{subscription.progress}}<br>
+Studied for: {{subscription.week_duration}} days<br>
+<form method="POST">
+    {{form.as_p}}
+    {%csrf_token%}
+    <button type="submit">Submit</button>
+</form>
+
+{% endblock %}

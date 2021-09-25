@@ -1,0 +1,98 @@
+{% extends '../base.html' %}
+{% block content %}
+
+<h1 class="text-center">{{course}}</h1>
+
+<div class="container">
+
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">Schedule Meeting</h5>
+
+                </div>
+                <div class="modal-body">
+                    <form id="schedule-form" method="post">
+                        {% csrf_token %}
+                        {{errmsg}}
+                        <div class="form-group">
+                            {{mtform.week}}
+                        </div>
+                        <div class="input-group date" id="datetimepicker1" data-target-input="nearest">
+                            {{ mtform.meeting_on }}
+                            <div class="input-group-append" data-target="#datetimepicker1" data-toggle="datetimepicker">
+                              <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                            </div>
+                          </div>
+                        
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary" form="schedule-form" >Schedule</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+
+
+<h3>Weeks</h3>
+<ul class="list-group">
+    {%for week in weeks%}<li class="list-group-item">{{week.title}}</li>{% endfor %}
+</ul>
+<a href="{% url 'manage_quiz' course.id %}">Manage Quiz</a>
+<br>
+<h3>Subscribers</h3>
+<table id="example" class="table table-striped table-bordered">
+    <thead>
+        <tr>
+            <th>Full Name</th>
+            <th>Current Week</th>
+            <th>Days Studied</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for s in subscriptions %}
+
+        <tr>
+            <td><a href="{% url 'quiz_approve' s.course.id s.student.user.id%}">{{s.student.user.first_name}} {{s.student.user.last_name}}</a></td>
+            <td>{{s.progress}}</td>
+            <td>{{s.week_duration}}</td>
+        </tr>
+
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+
+{% include './meeting_list.html' %}
+
+<a href="{% url 'edit_course' course.id %}" class="float">
+    <i class="fa fa-edit my-float"></i>
+</a>
+<a href="#" id="toggle-modal" class="float mr-80">
+    <i class="fa fa-quote-right my-float"></i>
+</a>
+
+
+<script>
+    $(document).ready(function () {
+        $('#example').DataTable();
+
+        $("#toggle-modal").click(function () {
+            console.log("click");
+            $("#myModal").modal('show');
+        });
+
+        $("#datetimepicker1").datetimepicker({
+      format: 'DD/MM/YYYY HH:mm',
+    });
+
+    });
+</script>
+{% endblock %}
