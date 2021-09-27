@@ -1,16 +1,31 @@
 {% extends '../base.html' %}
+{% load crispy_forms_tags %}
 
 {% block content %}
+<div class="container">
 <h3>Edit Course {{course}}</h3>
 <form method="POST">
     {% csrf_token %}
-    {{edit_course_form.as_p}}
-    <input type="submit">
+    
+    {{edit_course_form|crispy}}
+
+    
+    <br>
+    <input type="submit" class="btn btn-outline-primary">
 </form>
+<br>
 <h5>Weeks</h5>
 <form method="POST">
     {% csrf_token %}
-    {{edit_week_formset.as_p}}
-    <input type="submit">
+    {% for form in edit_week_formset %}
+    Week {{forloop.counter}}
+    {% crispy form %}
+    <br>
+    <hr>
+    <br>
+    <!-- {% crispy edit_week_formset edit_week_formset.form.helper %} -->
+    {% endfor %}
+    <input type="submit" class="btn btn-outline-primary">
 </form>
+</div>  
 {% endblock %}

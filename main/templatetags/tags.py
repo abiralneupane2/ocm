@@ -39,7 +39,7 @@ def is_available(sub, week_no):
 @register.filter
 def get_percentage(sub):
     try:
-        val = sub.progress.week_no/sub.total_weeks*100
+        val = (sub.progress.week_no-1)/sub.total_weeks*100
         return str(round(val, 2))
     except:
         return 0

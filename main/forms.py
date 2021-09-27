@@ -4,6 +4,7 @@ from django.forms import fields
 from .models import Student, Teacher, Course, Week, Files
 from .models import User
 from main import models
+from crispy_forms.helper import FormHelper
 
 
 
@@ -80,9 +81,14 @@ class CourseEditForm(forms.ModelForm):
         exclude = ['approved', 'uploaded_by','approval_message',]
 
 class WeekEditForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        self.helper = FormHelper()
+        self.helper.form_tag = False
+        super(WeekEditForm, self).__init__(*args, **kwargs)
+
     class Meta:
         model = Week
-        exclude = ['course', 'final', ]
+        exclude = ['course', ]
 
 class ScheduleMeetingForm(forms.ModelForm):
     meeting_on = forms.DateTimeField(

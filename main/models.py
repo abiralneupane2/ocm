@@ -138,6 +138,7 @@ class Week(models.Model):
     description = models.TextField(max_length=1000, null=True, blank=True)
     instructions = models.TextField(max_length=1000, null=True, blank=True)
     final = models.BooleanField(default=False)
+    difficulty = models.IntegerField(default=1)
     @staticmethod
     def get_files(week_id):
         print(week_id)
@@ -166,7 +167,7 @@ class Subscription(models.Model):
     def total_weeks(self):
         return Week.objects.filter(course=self.course).count()
     
-    def set_quiz_marks(self, marks, question_count):
+    def calculate_marks(self, marks, question_count):
         m = (self.quiz_marks*self.quiz_count+marks/question_count)/(self.quiz_count+1)
         return m
 

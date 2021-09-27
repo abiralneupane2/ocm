@@ -420,7 +420,8 @@ def take_quiz(request, week_id):
     q = models.Question.objects.filter(difficulty=wk.week_no)
 
     if request.method == 'POST':
-        question_count = request.POST.get("question_count")
+        question_count = int(request.POST.get("question-count"))
+        print(question_count)
         count=0
         for t in q:
             a=request.POST.get(str(t.id))
