@@ -19,10 +19,10 @@
                         {% csrf_token %}
                         {{errmsg}}
                         <div class="form-group">
-                            {{mtform.week}}
+                            Week: {{mtform.week}}
                         </div>
                         <div class="input-group date" id="datetimepicker1" data-target-input="nearest">
-                            {{ mtform.meeting_on }}
+                            Date and Time: {{ mtform.meeting_on }}
                             <div class="input-group-append" data-target="#datetimepicker1" data-toggle="datetimepicker">
                               <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                             </div>

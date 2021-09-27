@@ -22,7 +22,6 @@ def get_course_by_university(university):
 
 @register.filter
 def get_files_url(week_id):
-    print(week_id)
     try:
         return models.Week.get_files(week_id)
     except:
@@ -30,8 +29,6 @@ def get_files_url(week_id):
 
 @register.filter
 def is_available(sub, week_no):
-    print("progress"+str(sub.progress.week_no))
-    print("week"+ str(week_no))
     if week_no<=sub.progress.week_no:
         
         return True
@@ -46,6 +43,17 @@ def get_percentage(sub):
         return str(round(val, 2))
     except:
         return 0
+
+@register.filter
+def quiz_available(sub, week_no):
+    
+    if sub.quiz_approve or sub.progress.week_no > week_no:
+        print("true")
+        return True
+    else:
+        print("false")
+        return False
+
 @register.simple_tag
 def check_subscription(course, user):
     if course.check_subscription(user):

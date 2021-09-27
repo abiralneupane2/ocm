@@ -32,14 +32,23 @@
         </div>
         <div class="card mt-3">
           <p class="text-center"><strong>Available meetings</strong></p>
+          {% if meetings %}
           <ul class="list-group list-group-flush">
             {% for m in pending_meetings %}
+
             <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
-              <h6 class="mb-0">{{m.week}}</h6>
+              <h6 class="mb-0">{% if m.link %}<a href="{{m.link}}">{{m.week}}</a>{%else%}{{m.week}}{% endif %}</h6>
               <span class="text-secondary">{{m.meeting_on}}</span>
             </li>
+
+
+
+
             {% endfor %}
           </ul>
+          {% else %}
+          <p>No pending meetings</p>
+          {% endif %}
         </div>
       </div>
       <div class="col-md-8">
@@ -74,6 +83,9 @@
                 <div class="col-sm-9 text-secondary">
                   {{user_edit_form.last_name}}
                 </div>
+              </div>
+              <hr>
+              <div class="row">
                 <div class="col-sm-3">
                   <h6 class="mb-0">Email</h6>
                 </div>
@@ -112,7 +124,7 @@
               <div class="row">
                 <div class="col-sm-12">
 
-                  <input type="submit">
+                  <input type="submit" class="btn btn-outline-primary">
 
                 </div>
               </div>
@@ -165,7 +177,7 @@
               <div class="col-sm-12">
                 <form method="GET" action="{% url 'dashboard'%}">
                   <input type="hidden" name="edit" value="true">
-                  <button type="submit">Edit</button>
+                  <button type="submit" class="btn btn-outline-secondary">Edit</button>
                 </form>
               </div>
             </div>
@@ -177,48 +189,51 @@
 
 
         </div>
-        <div class="row gutters-sm">
-          <div class="col-sm mb-3">
-            <div class="card h-100">
-              <div class="card-body">
-                <h6 class="d-flex align-items-center mb-3">My Subscriptions</h6>
-                <table class="table table-bordered">
-                  <thead>
-                    <tr>
-                      <th>Course</th>
-                      <th>Current Week</th>
-                      <th>Next Week</th>
-                      <th>Progress</th>
-                    </tr>
-                  </thead>
-                  {% for sub in subscriptions %}
-                  {% if not sub.completed %}
-                    <tr>
 
-                      <td><a href="{% url 'study' sub.course.id %}">{{sub.course}}</a></td>
-                      <td>{{sub.progress.title}}</td>
-                      <td>{{sub.next_unit.title}}</td>
-                      <td>{{sub|get_percentage}}</td>
-                    </tr>
-                  {% endif %}
-                  {% endfor %}
-                </table>
-                <br>
-                <h6 class="d-flex align-items-center mb-3">Completed Courses</h6>
-                {% if completed %}
-                {% for sub in completed %}
-        
-                  <a href="{% url 'study' sub.course.id %}">{{sub.course}}</a>
-                  
-                {% endfor %}
-                {% else %}
-                <p>You donot have completed courses.</p>
-                {% endif %}
-              </div>
-            </div>
+
+        <div class="card mb-3">
+          <div class="card-body">
+            <h6 class="d-flex align-items-center mb-3">My Subscriptions</h6>
+            <table class="table table-bordered">
+              <thead>
+                <tr>
+                  <th>Course</th>
+                  <th>Current Week</th>
+                  <th>Next Week</th>
+                  <th>Progress</th>
+                </tr>
+              </thead>
+              {% for sub in subscriptions %}
+              {% if not sub.completed %}
+              <tr>
+
+                <td><a href="{% url 'study' sub.course.id %}">{{sub.course}}</a></td>
+                <td>{{sub.progress.title}}</td>
+                <td>{{sub.next_unit.title}}</td>
+                <td>{{sub|get_percentage}}</td>
+              </tr>
+              {% endif %}
+              {% endfor %}
+            </table>
+            <br>
+            <h6 class="d-flex align-items-center mb-3">Completed Courses</h6>
+            {% if completed %}
+            {% for sub in completed %}
+
+            <a href="{% url 'study' sub.course.id %}">{{sub.course}}</a>
+
+            {% endfor %}
+            <br>
+            <a href="{% url 'download_certificate' %}" class="btn btn-outline-primary">Certificate</a>
+            {% else %}
+            <p>You donot have completed courses.</p>
+            <a href="{% url 'download_certificate' %}" class="btn btn-outline-primary">Certificate</a>
+            {% endif %}
           </div>
-
         </div>
+
+
+
 
         {% endif %}
       </div>

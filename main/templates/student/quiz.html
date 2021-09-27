@@ -2,49 +2,79 @@
 {% block content %}
 {% if questions %}
 <div class="container">
-    <form method="POST">
-        {%csrf_token%}
-        {% for question in questions %}
-        {{question.question}}
-        <div class="form-check">
-            <input class="form-check-input" type="radio" id="{{question.id}}-1" name="{{question.id}}"
-                value="{{question.option_one}}">
-            <label class="form-check-label" for="{{question.id}}-1">
-                {{question.option_one}}
-            </label>
+    <div class="row" style="position:sticky; top:0; z-index:100">
+        <h1 class="text-center">{{week}} Quiz</h1>
+        <div class="col align-self-end" style="float: right;">
+            Time: <span id="rem-time">60 minutes</span><br>
+            <button id="start" class="btn btn-outline-success" onclick="start()">Start</button>
         </div>
-        <div class="form-check">
+    </div>
+    <hr>
+    <div class="container" id="questions-div" style="display: none; visibility: hidden;">
+        <form method="POST" id="questions-form">
+            {%csrf_token%}
+            <input type="hidden" name="question-count" value="{{questions|length}}">
+            {% for question in questions %}<br>
+            {{question.question}}
+            <div class="form-check">
+                <input class="form-check-input" type="radio" id="{{question.id}}-1" name="{{question.id}}"
+                    value="{{question.option_one}}">
+                <label class="form-check-label" for="{{question.id}}-1">
+                    {{question.option_one}}
+                </label>
+            </div>
+            <div class="form-check">
 
-            <input class="form-check-input" type="radio" id="{{question.id}}-2" name="{{question.id}}"
-                value="{{question.option_two}}">
-            <label class="form-check-label" for="{{question.id}}-2">
-                {{question.option_two}}
-            </label>
-        </div>
-        <div class="form-check">
+                <input class="form-check-input" type="radio" id="{{question.id}}-2" name="{{question.id}}"
+                    value="{{question.option_two}}">
+                <label class="form-check-label" for="{{question.id}}-2">
+                    {{question.option_two}}
+                </label>
+            </div>
+            <div class="form-check">
 
-            <input class="form-check-input" type="radio" id="{{question.id}}-3" name="{{question.id}}"
-                value="{{question.option_three}}">
-            <label class="form-check-label" for="{{question.id}}-3">
-                {{question.option_three}}
-            </label>
-        </div>
-        <div class="form-check">
+                <input class="form-check-input" type="radio" id="{{question.id}}-3" name="{{question.id}}"
+                    value="{{question.option_three}}">
+                <label class="form-check-label" for="{{question.id}}-3">
+                    {{question.option_three}}
+                </label>
+            </div>
+            <div class="form-check">
 
-            <input class="form-check-input" type="radio" id="{{question.id}}-4" name="{{question.id}}"
-                value="{{question.option_four}}">
-            <label class="form-check-label" for="{{question.id}}-4">
-                {{question.option_four}}
-            </label>
-        </div>
-        {% endfor %}
-        <button type="submit">Submit</button>
-    </form>
+                <input class="form-check-input" type="radio" id="{{question.id}}-4" name="{{question.id}}"
+                    value="{{question.option_four}}">
+                <label class="form-check-label" for="{{question.id}}-4">
+                    {{question.option_four}}
+                </label>
+            </div>
+            {% endfor %}
+            <br>
+            <button type="submit" class="btn btn-outline-success" onsubmit="return confirm('Are you sure?');">Submit</button>
+        </form>
+    </div>
 </div>
 {% else %}
 <p>Quiz not ready yet.</p>
 {%endif%}
 <script>
+    function timer() {
+
+    }
+    function start() {
+        counter = 60
+        questions_div = document.getElementById("questions-div")
+        start_button = document.getElementById("start")
+        questions_div.style.visibility = "visible"
+        questions_div.style.display = "block"
+        start_button.remove()
+
+
+        setTimeout(timer, 3600000)
+        setInterval(function displayTime() {
+            counter--
+            document.getElementById("rem-time").innerHTML=` ${counter} minutes`
+        }, 60000)
+    }
 
 </script>
 {% endblock %}

@@ -1,0 +1,27 @@
+<html>
+    <head>
+        <title>
+            certificate
+        </title>
+    </head>
+    <body>
+        <h1 class="text-center">Learning Zone</h1>
+        <br>
+        <hr>
+        <br>
+        {% for c in completed %}
+        <div class="card" style="width: 18rem;">
+            <div class="card-body">
+              <h5 class="card-title">{{c.course.name}}</h5>
+              <h6 class="card-subtitle mb-2 text-muted">{{c.course.uploaded_by}}</h6>
+              <ul class="list-group">
+                <li class="list-group-item">Start Date: {{c.subscribed_on}}</li>
+                <li class="list-group-item">End Date: {{c.complete_date}}</li>
+                <li class="list-group-item">Grade: {{c.quiz_marks}}</li>
+              </ul>
+            </div>
+          </div>
+          <br><hr><br>
+        {% endfor %}
+    </body>
+</html>

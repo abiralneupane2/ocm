@@ -16,6 +16,8 @@ admin.site.register(models.FAQ)
 admin.site.register(models.Question)
 admin.site.register(models.User, UserAdmin)
 admin.site.register(models.Categories)
+admin.site.register(models.Message)
+admin.site.register(models.Meeting)
 
 class TeacherAdminForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):

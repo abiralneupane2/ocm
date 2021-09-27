@@ -8,8 +8,12 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.conf import settings
 from django.forms.models import modelformset_factory
-from .models import Files, Student, Subscription, User
+from .models import Files, Meeting, Student, Subscription, User
 from main.forms import QuizManageForm
+from main.utils import render_to_pdf
+from django.template.loader import get_template
+import datetime
+
 
 # Create your views here.
 def index(request):
@@ -41,11 +45,11 @@ def dashboard(request):
             if request.method == 'GET':
                 if request.GET.get('edit'):
                     context={
-                        'subscriptions': request.user.student.get_subscriptions(),
-                        'student': request.user.student, 
+                         
                         'profile_edit_form': forms.ProfileEditForm(instance=request.user.student),
                         'user_edit_form': forms.UserEditForm(instance=request.user),
                     }
+                
                 return render(request, 'student/dashboard.html', context)
             elif request.method == 'POST':
                 pf = forms.ProfileEditForm(request.POST, request.FILES, instance=request.user.student)
@@ -63,16 +67,36 @@ def dashboard(request):
             teacher=request.user.teacher
             context={
                         'courses': teacher.all_courses,
-                        'teacher': teacher, 
+                        'teacher': teacher,
+                        'meetings': models.Meeting.objects.filter(requested_by=request.user, completed=False),
+
                     }
             if request.method == 'GET':
                 if request.GET.get('edit'):
                     context={
-                        'courses': teacher.all_courses,
-                        'teacher': teacher, 
+                         
                         'profile_edit_form': forms.TeacherProfileEditForm(instance=teacher),
                         'user_edit_form': forms.UserEditForm(instance=request.user),
+                        
                     }
+                elif request.GET.get('link'):
+                    id=request.GET.get('meeting-id')
+                    
+                    mt = models.Meeting.objects.get(id=id)
+                    link = request.GET.get('link')
+                    mt.link=link
+                    mt.save()
+                
+                elif request.GET.get('delete'):
+                    id=request.GET.get('meeting-id')
+                    mt = models.Meeting.objects.get(id=id).delete()
+                
+                elif request.GET.get('completed'):
+                    id=request.GET.get('meeting-id')
+                    mt = models.Meeting.objects.get(id=id)
+                    mt.completed=True
+                    mt.save()
+                    
                 return render(request, 'teacher/dashboard.html', context)
             elif request.method == 'POST':
                 pf = forms.ProfileEditForm(request.POST, request.FILES, instance=request.user.teacher)
@@ -127,11 +151,11 @@ def course(request, id):
         errmsg=" "
         if request.method=="POST":
             mtform = forms.ScheduleMeetingForm(request.POST)
-            print(mtform)
+            
             if mtform.is_valid():
                 f = mtform.save(commit=False)
                 f.requested_by=request.user
-                print(mtform)
+                
                 f.save()
             else:
 
@@ -146,8 +170,9 @@ def course(request, id):
             'subscriptions': models.Subscription.objects.filter(course=course),
             'mtform': mtform,
             'errmsg': errmsg,
-            'meetings': models.Meeting.objects.filter(requested_by=request.user)
+            
         }
+        
         return render(request, 'teacher/course.html', context)
 
 
@@ -395,17 +420,20 @@ def take_quiz(request, week_id):
     q = models.Question.objects.filter(difficulty=wk.week_no)
 
     if request.method == 'POST':
+        question_count = request.POST.get("question_count")
         count=0
         for t in q:
             a=request.POST.get(str(t.id))
             if a==t.right_answer:
                 count=count+1
         sub = models.Subscription.objects.get(student=request.user.student, course=wk.course)
-
+        sub.quiz_count=sub.quiz_count+1
+        sub.quiz_marks = sub.calculate_marks(count, question_count)
         if count>(q.count()/2):
             if sub.progress==wk:
                 if sub.progress.final:
                     sub.completed=True
+                    sub.complete_date=datetime.date.today()
                     sub.save()
                 else:
                     sub.progress=sub.next_unit
@@ -423,3 +451,20 @@ def take_quiz(request, week_id):
         'week':wk
     }
     return render(request, 'student/quiz.html', context)
+
+class GeneratePDF(View):
+    def get(self, request, *args, **kwargs):
+        template = get_template('student/certificate.html')
+        context = {
+            "student": request.user.student,
+            "completed": request.user.student.completed_courses(),
+        }
+        html = template.render(context)
+        pdf = render_to_pdf('student/certificate.html', context)
+        if pdf:
+            response = HttpResponse(pdf, content_type='application/pdf')
+            filename = "certificate.pdf"
+            content = "attachment; filename='%s'" %(filename)
+            response['Content-Disposition'] = content
+            return response
+        return HttpResponse("Not found")

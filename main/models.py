@@ -3,7 +3,8 @@ from django.db import models
 
 from django.contrib.auth.models import AbstractUser
 from django.db.models.fields import DateTimeField
-import datetime    
+import datetime
+
 # Create your models here.
 
 GRADES = [
@@ -27,6 +28,9 @@ class Student(models.Model):
     address = models.CharField(max_length=100, blank=True)
     phone = models.CharField(null=True, max_length=20, blank=True)
     bio = models.CharField(null=True, max_length=100, blank=True)
+
+    def completed_courses(self):
+        return Subscription.objects.filter(student=self, completed=True)
 
     def get_subscriptions(self):
         return Subscription.objects.filter(student=self, flag=True)
@@ -83,6 +87,7 @@ class Course(models.Model):
     uploaded_by = models.ForeignKey(Teacher, on_delete=models.CASCADE)
     description = models.TextField(max_length=1000)
     category = models.ForeignKey(Categories, on_delete=models.SET_NULL, null=True)
+    price = models.FloatField(default=0.0)
     approved = models.BooleanField(default=False)
     approval_message = models.CharField(max_length=200, null=True, blank=True)
     @property
@@ -152,13 +157,20 @@ class Subscription(models.Model):
     flag = models.BooleanField(auto_created=True,default=True)
     quiz_approve = models.BooleanField(auto_created=False, default=False)
     progress = models.ForeignKey(Week, on_delete=models.CASCADE)
-    quiz_marks = models.IntegerField(default=0)
+    quiz_marks = models.FloatField(default=0)
     week_begin = models.DateField(auto_now_add=True, null=True)
+    complete_date = models.DateField(null=True)
+    quiz_count = models.IntegerField(default=0)
 
     @property
     def total_weeks(self):
         return Week.objects.filter(course=self.course).count()
     
+    def set_quiz_marks(self, marks, question_count):
+        m = (self.quiz_marks*self.quiz_count+marks/question_count)/(self.quiz_count+1)
+        return m
+
+
     @property
     def next_unit(self):
         try:
@@ -177,20 +189,6 @@ class Subscription(models.Model):
         return self.course.name + " by " + self.student.user.username
 
 
-
-class Certificate(models.Model):
-    student = models.ForeignKey(Student, on_delete=models.CASCADE)
-    date = models.DateField(auto_now_add=True)
-    grade = models.CharField(choices=GRADES, max_length=2)
-    teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE, null=True)
-
-
-    def __str__(self):
-        return self.student.user.username
-
-class CertificateCourse(models.Model):
-    certificate = models.ForeignKey(Certificate, on_delete=models.CASCADE)
-    course = models.ForeignKey(Course, on_delete=models.CASCADE)
 
 
 
@@ -241,6 +239,7 @@ class Meeting(models.Model):
     requested_by = models.ForeignKey(User, on_delete=models.CASCADE)
     completed = models.BooleanField(default=False)
     week = models.ForeignKey(Week, on_delete=models.CASCADE)
+    link = models.CharField(max_length=500, null=True)
 
 class Message(models.Model):
     message = models.TextField(max_length=1000)
@@ -250,3 +249,5 @@ class Message(models.Model):
 
     def __str__(self):
         return self.message
+
+    
