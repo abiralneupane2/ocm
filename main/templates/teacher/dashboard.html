@@ -1,7 +1,7 @@
 {% extends '../base.html'%}
 {% load tags%}
 {% block content %}
-
+{% load crispy_forms_tags %}
 <div class="mt-5 container">
     <div class="main-body">
         <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
@@ -14,7 +14,8 @@
                 </div>
                 <div class="modal-body">
                     <form method="GET" id="link-form">
-                        Link: <input type="text" name="link">
+                        <label for="link">Link</label>
+                        <input type="text" class="form-control" name="link" id="link">
                         
                     </form>
                 </div>
@@ -78,6 +79,9 @@
                             <div class="col-sm-9 text-secondary">
                                 {{user_edit_form.last_name}}
                             </div>
+                        </div>
+                        <hr>
+                        <div class="row">
                             <div class="col-sm-3">
                                 <h6 class="mb-0">Email</h6>
                             </div>
@@ -117,7 +121,7 @@
                         <div class="row">
                             <div class="col-sm-12">
 
-                                <input type="submit">
+                                <input type="submit" class="btn btn-outline-primary">
 
                             </div>
                         </div>
@@ -170,7 +174,7 @@
                         <div class="col-sm-12">
                             <form method="GET" action="{% url 'dashboard'%}">
                                 <input type="hidden" name="edit" value="true">
-                                <button type="submit">Edit</button>
+                                <button type="submit" class="btn btn-outline-secondary">Edit</button>
                             </form>
                         </div>
                     </div>
@@ -212,34 +216,29 @@
                 </div>
 
             </div>
+
+            <div class="card mt-3">
+                <p class="text-center"><strong>Available meetings</strong></p>
+                {% if meetings %}
+                <ul class="list-group list-group-flush">
+                  {% for m in meetings %}
+      
+                  <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
+                    <h6 class="mb-0">{% if m.link %}<a href="{{m.link}}" target="_blank"  >{{m.week}}</a>{%else%}{{m.week}}{% endif %}</h6>
+                    <span class="text-secondary">{{m.meeting_on}}</span>
+                  </li>
+      
+      
+      
+      
+                  {% endfor %}
+                </ul>
+                {% else %}
+                <p>No pending meetings</p>
+                {% endif %}
+              </div>
             {% endif %}
-            <div class="row gutters-sm">
-                <div class="col-sm mb-3">
-                    <div class="card h-100">
-                        <div class="card-body">
-                            <h6 class="d-flex align-items-center mb-3">Upcoming Meetings</h6>
-                            {% if meetings %}
-                            <ul class="list-group list-group-flush">
-                                {% for m in meetings %}
-
-                                <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
-                                    <h6 class="mb-0">{% if m.link %}<a
-                                            href="{{m.link}}">{{m.week}}</a>{%else%}{{m.week}}{% endif %}</h6>
-                                    <span class="text-secondary">{{m.meeting_on}} <a href="#" class="btn btn-outline-info link-modal" data-id="{{m.id}}">Start</a></span>
-                                </li>
-
-
-
-
-                                {% endfor %}
-                            </ul>
-                            {% else %}
-                            <p>No pending meetings</p>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-            </div>
+            
 
 
             <a href="#" class="float" onclick="return add_course()">

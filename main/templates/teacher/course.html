@@ -1,6 +1,6 @@
 {% extends '../base.html' %}
 {% block content %}
-
+{% load crispy_forms_tags %}
 
 
 <div class="container">
@@ -19,14 +19,16 @@
                         {% csrf_token %}
                         {{errmsg}}
                         <div class="form-group">
-                            Week: {{mtform.week}}
+                            {{mtform.week|as_crispy_field}}
                         </div>
+                        <br>
                         <div class="input-group date" id="datetimepicker1" data-target-input="nearest">
-                            Date and Time: {{ mtform.meeting_on }}
+                            {{ mtform.meeting_on|as_crispy_field }}
                             <div class="input-group-append" data-target="#datetimepicker1" data-toggle="datetimepicker">
-                              <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                              <div class="input-group-text"><br><br><i class="fa fa-calendar"></i></div>
                             </div>
                           </div>
+            
                         
                     </form>
                 </div>
