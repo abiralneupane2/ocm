@@ -128,52 +128,58 @@ def browse(request):
 
 def course(request, id):
     course = models.Course.objects.get(id=id)
-    if request.user.user_type==1:
-        if request.method=='POST':
-            student = models.Student.objects.get(user=request.user)
+    if request.user.is_authenticated:
+        if request.user.user_type==1:
+            if request.method=='POST':
+                student = models.Student.objects.get(user=request.user)
+                
+                try:
+                    s = models.Subscription.objects.get(student=student, course=course)
+                    
+                    s.flag = not s.flag
+                    
+                    s.save()
+                    
+                except:
+                    first_week = models.Week.objects.get(course=course,week_no=1)
+                    s = models.Subscription(student=student, course=course, progress=first_week, flag=True).save()
+            context={
+                'course' : models.Course.objects.get(id=id)
+            }
+            return render(request, 'student/course.html', context)
+
+        elif request.user.user_type==2:
+            errmsg=" "
+            if request.method=="POST":
+                mtform = forms.ScheduleMeetingForm(request.POST)
+                
+                if mtform.is_valid():
+                    f = mtform.save(commit=False)
+                    f.requested_by=request.user
+                    
+                    f.save()
+                else:
+
+                    errmsg=mtform.errors
+                    print(errmsg)
+
+            mtform = forms.ScheduleMeetingForm()
+            mtform.fields['week'].queryset = models.Week.objects.filter(course=course)
+            context ={
+                'course': course,
+                'weeks': models.Week.objects.filter(course=course),
+                'subscriptions': models.Subscription.objects.filter(course=course),
+                'mtform': mtform,
+                'errmsg': errmsg,
+                
+            }
             
-            try:
-                s = models.Subscription.objects.get(student=student, course=course)
-                
-                s.flag = not s.flag
-                
-                s.save()
-                
-            except:
-                first_week = models.Week.objects.get(course=course,week_no=1)
-                s = models.Subscription(student=student, course=course, progress=first_week, flag=True).save()
+            return render(request, 'teacher/course.html', context)
+    else:
         context={
-            'course' : models.Course.objects.get(id=id)
-        }
+                'course' : course
+            }
         return render(request, 'student/course.html', context)
-
-    elif request.user.user_type==2:
-        errmsg=" "
-        if request.method=="POST":
-            mtform = forms.ScheduleMeetingForm(request.POST)
-            
-            if mtform.is_valid():
-                f = mtform.save(commit=False)
-                f.requested_by=request.user
-                
-                f.save()
-            else:
-
-                errmsg=mtform.errors
-                print(errmsg)
-
-        mtform = forms.ScheduleMeetingForm()
-        mtform.fields['week'].queryset = models.Week.objects.filter(course=course)
-        context ={
-            'course': course,
-            'weeks': models.Week.objects.filter(course=course),
-            'subscriptions': models.Subscription.objects.filter(course=course),
-            'mtform': mtform,
-            'errmsg': errmsg,
-            
-        }
-        
-        return render(request, 'teacher/course.html', context)
 
 
 def userlogin(request):
