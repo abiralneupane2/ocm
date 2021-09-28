@@ -1,0 +1,41 @@
+{% extends './base.html' %}
+{% block content %}
+
+<div class="container">
+    <div class="row">
+        <div class="col-4">
+            <div class="card" style="width: 20rem;">
+                <img class="card-img-top rounded-circle" style="height: 15rem; width: auto;" src="{{teacher.photo.url}}"
+                    alt="Card image cap">
+
+                <div class="card-body">
+                    <h5 class="card-title">{{teacher.user}}</h5>
+                    <div class="container mx-10">
+                        <table class="table">
+                            <tr>
+                                <td>Email</td>
+                                <td>{{teacher.user.email}}</td>
+                            </tr>
+                            <tr>
+                                <td>Address</td>
+                                <td>{{teacher.address}}</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <div class="col-8">
+            <h3>Courses</h3>
+            <ul class="list-group">
+                {% for course in courses %}
+                
+                    <li class="list-group-item"><a class="text-decoration-none" href="{% url 'course_details' course.id %}">{{course.name}}</a></li>
+                
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

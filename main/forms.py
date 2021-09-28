@@ -38,9 +38,13 @@ class StudentRegistrationForm(forms.ModelForm):
 class UserRegistrationForm(forms.ModelForm):
     password=forms.CharField(widget=forms.PasswordInput())
     confirm_password=forms.CharField(widget=forms.PasswordInput())
+    first_name=forms.CharField(required=True)
+    last_name=forms.CharField(required=True)
+    email=forms.EmailField(required=True)
     class Meta:
         model=User
         fields=('username','email','password', 'first_name', 'last_name','email')
+    field_order = ['username', 'email', 'password', 'confirm_password', 'first_name', 'last_name']
 
     def clean(self):
         cleaned_data = super(UserRegistrationForm, self).clean()

@@ -2,81 +2,91 @@
 {% load static %}
 {% load tags %}
 {% block content%}
-<h1 class="display-3 text-center">{{subject.name}}</h1>
-
-
-<div class="container mx-10 mt-5">
-    <table class="table">
-        <thead>
-            <tr>
-                <td>#</td>
-                <td>Week Title</td>
-                <td>Difficulty</td>
-                
-            </tr>
-        </thead>
-        <tbody>
-            {% for week in weeks %}
-            <tr>
-                <td>{{week.week_no}}</td>
-                {%if subscription|is_available:week.week_no  %}
-                <td><a class="text-decoration-none" href="{% url 'start_lesson' week.id %}" >{{week.title}}</a></td>
-                {% else %}
-                <td><a class="text-decoration-none" style="pointer-events: none; color:black" href="#" >{{week.title}}</a></td>
-                {% endif %}
-                <td>{{week.difficulty}}</td>
-                
-            </tr>
-            {% endfor %}
-            
-        </tbody>
-    </table>
-</div>
+<div class="container">
+    <h1 class="display-3 text-center">{{subject.name}}</h1>
+    <p class="lead">{{subject.description}} - <strong><a style="text-decoration: none;"
+                href="{% url 'view_teacher' subject.uploaded_by.user.username %}">{{subject.uploaded_by}}</a></strong>
+    </p>
 
 
 
-<br><br>
-<div class="container mt-5">
-    <div class="row d-flex justify-content-center">
-        <div class="col-md-8">
-            <div class="headings d-flex justify-content-between align-items-center mb-3">
-                <h5>Total comments({{subject.total_comments}})</h5>
-                {%if user.is_authenticated %}
-                <div>
-                    <input type="text" placeholder="Comment" />
-                    <button class="comment btn btn-outline-primary" value="{{subject.id}}">Post</button>
-                </div>
-                {%endif%}
+    <div class="container mx-10 mt-5">
+        <table class="table">
+            <thead>
+                <tr>
+                    <td>#</td>
+                    <td>Week Title</td>
+                    <td>Difficulty</td>
 
-            </div>
-            {% for comment in subject.faq %}
-            <div class="card p-3">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div class="user d-flex flex-row align-items-center"> <img src="{{comment.from_person.photo.url}}"
-                            width="30" class="user-img rounded-circle mr-2"> <span><small
-                                class="font-weight-bold text-primary">{{comment.from_person}}</small> <small
-                                class="font-weight-bold">{{comment}}</small></span> </div> <small>2 days ago</small>
-                </div>
-                <div class="action d-flex justify-content-between mt-2 align-items-center">
-                    {%if comment.from_person == request.user.student%}
-                    <button class="cmnt-dlt btn btn-outline-danger reply px-4" value="{{comment.id}}">
-                        <small>Remove</small> </button>
+                </tr>
+            </thead>
+            <tbody>
+                {% for week in weeks %}
+                <tr>
+                    <td>{{week.week_no}}</td>
+                    {%if subscription|is_available:week.week_no %}
+                    <td><a class="text-decoration-none" href="{% url 'start_lesson' week.id %}">{{week.title}}</a></td>
+                    {% else %}
+                    <td><a class="text-decoration-none" style="pointer-events: none; color:black"
+                            href="#">{{week.title}}</a></td>
                     {% endif %}
-                    <div class="icons align-items-center"> <i class="fa fa-star text-warning"></i> <i
-                            class="fa fa-check-circle-o check-icon"></i> </div>
-                </div>
-            </div>
-            {% endfor %}
+                    <td>{{week.difficulty}}</td>
 
+                </tr>
+                {% endfor %}
+
+            </tbody>
+        </table>
+    </div>
+
+
+
+    <br><br>
+    <div class="container mt-5">
+        <div class="row d-flex justify-content-center">
+            <div class="col-md-8">
+                <div class="headings d-flex justify-content-between align-items-center mb-3">
+                    <h5>Total comments({{subject.total_comments}})</h5>
+                    {%if user.is_authenticated %}
+                    <div>
+                        <input type="text" placeholder="Comment" />
+                        <button class="comment btn btn-outline-primary" value="{{subject.id}}">Post</button>
+                    </div>
+                    {%endif%}
+
+                </div>
+                <div class="comment">
+                    {% for comment in subject.faq %}
+                    <div class="card p-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="user d-flex flex-row align-items-center"> <img
+                                    src="{{comment.from_person.photo.url}}" width="30"
+                                    class="user-img rounded-circle mr-2"> <span><small
+                                        class="font-weight-bold text-primary">{{comment.from_person}}</small> <small
+                                        class="font-weight-bold">{{comment}}</small></span> </div> <small>2 days
+                                ago</small>
+                        </div>
+                        <div class="action d-flex justify-content-between mt-2 align-items-center">
+                            {%if comment.from_person == request.user.student%}
+                            <button class="cmnt-dlt btn btn-outline-danger reply px-4" value="{{comment.id}}">
+                                <small>Remove</small> </button>
+                            {% endif %}
+                            <div class="icons align-items-center"> <i class="fa fa-star text-warning"></i> <i
+                                    class="fa fa-check-circle-o check-icon"></i> </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+            </div>
         </div>
     </div>
+
+
 </div>
 
-
-
-
 <script>
-    
+
 
 
     $('button.cmnt-dlt').click(function () {
@@ -85,7 +95,7 @@
         if (confirm("Are you sure?")) {
             $.ajax({
                 url: "{% url 'comment' %}",
-                method: 'post',
+                method: 'delete',
                 beforeSend: function (xhr) {
                     xhr.setRequestHeader("X-CSRFToken", window.CSRF_TOKEN);
                 },
@@ -102,7 +112,7 @@
         id = $(this).attr('value')
         comment = $(this).prev().val()
         $(this).prev().val('')
-        console.log(code);
+        console.log(comment);
         $.ajax({
             url: "{% url 'comment' %}",
             cache: false,
@@ -114,9 +124,7 @@
             },
             success: function (res) {
                 console.log(res)
-                var commentDiv = "<br><strong>" + "{{ request.user.username }}" + "</strong></a>  :  " + comment
-                console.log(commentDiv);
-                $('div.comment').append(commentDiv)
+                
             }
         });
     })

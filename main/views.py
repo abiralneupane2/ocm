@@ -232,7 +232,7 @@ class Comment(View):
         return HttpResponse(200)
 
     
-    def delete(self, request):	
+    def delete(self, request):
         body_unicode = request.body.decode('utf-8')
         id = body_unicode.split('=')[1]
         models.FAQ.objects.get(id=id).delete()
@@ -469,3 +469,12 @@ class GeneratePDF(View):
             response['Content-Disposition'] = content
             return response
         return HttpResponse("Not found")
+
+def view_teacher(request, username):
+    t = models.Teacher.objects.get(user__username=username)
+    c = models.Course.objects.filter(uploaded_by=t)
+    context={
+        'teacher':t,
+        'courses':c,
+    }
+    return render(request, 'view_teacher.html', context)

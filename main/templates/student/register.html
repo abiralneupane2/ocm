@@ -1,11 +1,21 @@
 {% extends '../login.html'%}
 {% block content %}
+{% load crispy_forms_tags %}
 
 
 
 <h3 class="text-center">Student Registration</h3>
 <a href="{% url 'teacher_register' %}">Register as teacher</a>
 <form method="POST" enctype="multipart/form-data">
+  {{errmsg}}
+  {% csrf_token %}
+  {{uform|crispy}}
+  {{sform|crispy}}
+  <br>
+  <button type="submit" class="btn btn-primary">Submit</button>
+  
+</form>
+<!--<form method="POST" enctype="multipart/form-data">
 
 
   {{errmsg}}
@@ -47,7 +57,7 @@
   
   <button type="submit" class="btn btn-primary">Submit</button>
 
-</form>
+</form>-->
 <p>Already have an account? Login <a href="{% url 'login' %}">here</a></p>
 
 

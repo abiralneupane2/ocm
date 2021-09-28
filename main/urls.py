@@ -21,7 +21,8 @@ urlpatterns = [
     path('course/<int:course_id>/<int:user_id>/', views.quiz_approve, name='quiz_approve'),
     path('course/<int:course_id>/quiz/', views.manage_quiz, name='manage_quiz'),
     path('start_lesson/<int:week_id>/quiz', views.take_quiz, name = 'take_quiz'), 
-    path('download',views.GeneratePDF.as_view(), name='download_certificate')  
+    path('download',views.GeneratePDF.as_view(), name='download_certificate') ,
+    path('teacher/<str:username>', views.view_teacher, name='view_teacher') 
     
     
 

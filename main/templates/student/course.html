@@ -1,7 +1,7 @@
 {% extends '../base.html'%}
 {% load tags%}
 {% block content %}
-<div class="jumbotron">
+<div class="jumbotron container">
     <h1 class="display-4">{{course.name}}</h1>
     <p class="lead">{{course.description}}</p>
     <hr class="my-4">
@@ -9,17 +9,20 @@
         <ul class="list-group list-group-flush">
             <li class="list-group-item">Category: {{course.category}}</li>
 
-            <li class="list-group-item">Uploaded By: {{course.uploaded_by.user.first_name}} {{course.uploaded_by.user.last_name}}</li>
-            
+            <li class="list-group-item">Uploaded By: <a style="text-decoration: none;" href="{% url 'view_teacher' course.uploaded_by.user.username %}">{{course.uploaded_by.user.first_name}} {{course.uploaded_by.user.last_name}}</a></li>
+            <li class="list-group-item">Price: {{course.price}}</li>
           </ul>
+          <hr>
     </p>
     {% if request.user.user_type is 1 %}
     <p class="lead">
-      <form method="POST" id="subscribe">
+      {% check_subscription course request.user as subscription %}
+      <form method="POST" id="subscribe" onsubmit="return confirm('Do you really want to {% if subscription %}unsubscribe {% else %} subscribe {%endif%}?');">
         {% csrf_token %}
         <input type="hidden" name="course_id" value="{{course.id}}">
+        {% if subscription %} <input type="submit" class="btn btn-outline-success btn-light" value="Unsubscribe">{% else %}  <input type="submit" class="btn btn-outline-success btn-light" value="Subscribe"> {% endif %}
+
       </form>
-      {% check_subscription course request.user as subscription %}{% if subscription %} <button type="submit" class="btn btn-outline-success btn-light" form="subscribe" value="Submit" onsubmit="return confirm('Do you really want to unsubscribe?');"> Unsubscribe </button>{% else %}  <button type="submit" class="btn btn-outline-success btn-light" form="subscribe" value="Submit"> Subscribe </button>{% endif %}</button>
     </p>
     {% endif %}
   </div>
