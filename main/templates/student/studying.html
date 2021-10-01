@@ -19,10 +19,10 @@
     
     <h1>{{week.course}}</h1>
     <br>
-    <h3>{{week.title}}</h3>
-    {% if week.instructions %}<h3>Instructions</h3>
+    <h3>Week {{week.week_no}} {{week.title}}</h3>
+    {% if week.instructions %}<h5>Instructions</h5>
     <p>{{week.instructions}}</p><br>{% endif %}
-    <p>{{ week.description }}</p>
+    <h5>Description</h5><p>{{ week.description }}</p>
     
     <h5>Materials</h5>
     {% if files %}

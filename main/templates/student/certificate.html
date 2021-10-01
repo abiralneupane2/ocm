@@ -13,9 +13,9 @@
         <br>
         <hr>
         <br>
-        Name : {{request.user}}
-        Student Id : {{request.user.student.id}}
-        Courses Completed : {{c|length}}
+        Name : {{request.user}}<br>
+        Student Id : {{request.user.student.id}}<br>
+        Courses Completed : {{c|length}}<br>
         <br>
         {% for c in completed %}
         <div class="card" style="width: 18rem;">

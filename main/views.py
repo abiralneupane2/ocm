@@ -183,6 +183,7 @@ def course(request, id):
 
 
 def userlogin(request):
+    errmsg = ""
     if request.user.is_authenticated:
         logout(request)
         return render(request, 'login.html', {'form': forms.LoginForm()})
@@ -194,19 +195,19 @@ def userlogin(request):
                 password  = form.cleaned_data.get("password")
                 print(username)
                 print(password)
-                user = User.objects.get(username=username, password=password)
-                print(user)
-                if user is not None:
-                    
-                    login(request, user)        
-                    print('user found')
+                try:
+                    user = User.objects.get(username=username, password=password)
+                    login(request, user) 
                     return redirect(reverse('index'))
+                except:
                     
-                else:
-                    print('not found')
-                    return render(request, 'login.html', {'errmsg': "user not found", "form": form})
+                    return render(request, 'login.html', {'errmsg': "Username or password doesn't match", "form": form})
+
+                
             else:
                 print(form.errors)
+                errmsg = form.errors
+                render(request, 'login.html', {'errmsg': errmsg, "form": form})
         return render(request,'login.html', {'form': forms.LoginForm()})
 
 def university(request, name):

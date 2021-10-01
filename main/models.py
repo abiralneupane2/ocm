@@ -160,7 +160,7 @@ class Subscription(models.Model):
     progress = models.ForeignKey(Week, on_delete=models.CASCADE)
     quiz_marks = models.FloatField(default=0)
     week_begin = models.DateField(auto_now_add=True, null=True)
-    complete_date = models.DateField(null=True)
+    complete_date = models.DateField(null=True, blank=True)
     quiz_count = models.IntegerField(default=0)
 
     @property

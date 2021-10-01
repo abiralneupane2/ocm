@@ -220,11 +220,13 @@
             <br>
             <h6 class="d-flex align-items-center mb-3">Completed Courses</h6>
             {% if completed %}
+            <ul class="list-group">
             {% for sub in completed %}
 
-            <a href="{% url 'study' sub.course.id %}">{{sub.course}}</a>
+            <li class="list-group-item"><a href="{% url 'study' sub.course.id %}">{{sub.course}}</a></li>
 
             {% endfor %}
+            </ul>
             <br>
             <a href="{% url 'download_certificate' %}" class="btn btn-outline-primary">Certificate</a>
             {% else %}

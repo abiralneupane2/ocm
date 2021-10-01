@@ -1,7 +1,31 @@
 {% extends '../base.html'%}
 {% load tags%}
+{% load static %}
 {% block content %}
+
 <div class="jumbotron container">
+  <div class="modal" tabindex="-1" role="dialog" id="myModal">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Paypal</h5>
+          
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button><br>
+          
+        </div>
+        <div class="modal-body">
+          Course Name: {{course.name}}<br>
+          Price: {{course.price}}
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" onclick="sub()">Pay</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
     <h1 class="display-4">{{course.name}}</h1>
     <p class="lead">{{course.description}}</p>
     <hr class="my-4">
@@ -15,17 +39,46 @@
           <hr>
     </p>
     {% if request.user.user_type is 1 %}
-    <p class="lead">
+    
       {% check_subscription course request.user as subscription %}
-      <form method="POST" id="subscribe" onsubmit="return confirm('Do you really want to {% if subscription %}unsubscribe {% else %} subscribe {%endif%}?');">
-        {% csrf_token %}
-        <input type="hidden" name="course_id" value="{{course.id}}">
-        {% if subscription %} <input type="submit" class="btn btn-outline-success btn-light" value="Unsubscribe">{% else %}  <input type="submit" class="btn btn-outline-success btn-light" value="Subscribe"> {% endif %}
-
-      </form>
-    </p>
+      <button class="btn btn-outline-success" onclick="payment_confirm('{% if subscription %}unsubscribe{%else%}subscribe{%endif%}')">{% if subscription %}Unsubscribe{%else%}Subscribe{%endif%}</button>
+    
     {% endif %}
   </div>
+  <script>
+    function payment_confirm(val){
+      price = parseFloat("{{course.price}}")
+      id = "{{course.id}}"
+      if(val=="subscribe" && price!=parseFloat(0.0)){
+        $("#myModal").modal('show');
+
+      }
+      else if(val=="unsubscribe" || price==parseFloat(0.0)){
+        c = confirm(`Are you sure you want to ${val}?`)
+        if(c){
+          sub()
+        }
+      }
+    }
+    function sub(){
+      console.log("ajax");
+      var id="{{course.id}}"
+      var url =  "{% url 'course_details' "+id+" %}"
+      $.ajax({
+            url: url,
+            cache: false,
+            method: 'POST',
+            data: {
+                csrfmiddlewaretoken: window.CSRF_TOKEN,
+                course_id: id,
+            },
+            success: function (res) {
+                location.reload()
+                
+            }
+        });
+    }
+  </script>
 
   
 
