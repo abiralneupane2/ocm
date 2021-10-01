@@ -9,6 +9,7 @@ urlpatterns = [
     path('dashboard/', views.dashboard, name='dashboard'),
     path('browse/', views.browse, name='browse'),
     path('course/<str:id>/', views.course, name='course_details'),
+    path('subscribe/',views.subscribe, name='subscribe'),
     path('login/', views.userlogin, name='login'),
     path('study/<str:id>/', views.study, name='study'),
     path('comment/', views.Comment.as_view(), name='comment'),

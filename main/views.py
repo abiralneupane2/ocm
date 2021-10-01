@@ -130,19 +130,7 @@ def course(request, id):
     course = models.Course.objects.get(id=id)
     if request.user.is_authenticated:
         if request.user.user_type==1:
-            if request.method=='POST':
-                student = models.Student.objects.get(user=request.user)
-                
-                try:
-                    s = models.Subscription.objects.get(student=student, course=course)
-                    
-                    s.flag = not s.flag
-                    
-                    s.save()
-                    
-                except:
-                    first_week = models.Week.objects.get(course=course,week_no=1)
-                    s = models.Subscription(student=student, course=course, progress=first_week, flag=True).save()
+            
             context={
                 'course' : models.Course.objects.get(id=id)
             }
@@ -485,3 +473,22 @@ def view_teacher(request, username):
         'courses':c,
     }
     return render(request, 'view_teacher.html', context)
+
+@csrf_exempt
+def subscribe(request):
+    if request.method=='POST':
+        student = models.Student.objects.get(user=request.user)
+        id = request.POST.get('course_id')
+        course = models.Course.objects.get(id=id)
+        
+        try:
+            s = models.Subscription.objects.get(student=student, course=course)
+            
+            s.flag = not s.flag
+            
+            s.save()
+            
+        except:
+            first_week = models.Week.objects.get(course=course,week_no=1)
+            s = models.Subscription(student=student, course=course, progress=first_week, flag=True).save()
+        return redirect(reverse('course_details',kwargs={"id":id}))
