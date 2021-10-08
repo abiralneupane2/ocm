@@ -56,7 +56,7 @@ class Teacher(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     cv = models.FileField(upload_to='cvs/')
     bio = models.CharField(null=True, max_length=100, blank=True)
-    address = models.CharField(max_length=100, blank=True)
+    address = models.CharField(max_length=200, blank=True)
     photo = models.FileField(null=True, blank=True)
     phone = models.CharField(null=True, max_length=20, blank=True)
     approved = models.BooleanField(default=False)
