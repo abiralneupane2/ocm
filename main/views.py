@@ -347,7 +347,7 @@ def start_lesson(request, week_id):
 
 def edit_course(request, id):
     course = models.Course.objects.get(id=id)
-    if request.method=="post":
+    if request.method=="POST":
         cf = forms.CourseEditForm(request.POST, instance=course)
         weeks = models.Week.objects.filter(course=course)
         weekformsetfactory = modelformset_factory(models.Week, forms.WeekEditForm, extra=1)
@@ -355,11 +355,10 @@ def edit_course(request, id):
         if cf.is_valid():
             cf.save()
         formset.save()
-        return redirect(reverse('course', kwargs={'id':id}))
+        return redirect(reverse('course_details', kwargs={'id':id}))
     cf = forms.CourseEditForm(instance=course)
     weekformsetfactory = modelformset_factory(models.Week, forms.WeekEditForm, extra=1)
     weeks = models.Week.objects.filter(course=course)
-    print(weeks)
     formset = weekformsetfactory(queryset=weeks)
     context={
         'course':course,
