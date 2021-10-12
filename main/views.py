@@ -348,7 +348,7 @@ def start_lesson(request, week_id):
 def edit_course(request, id):
     course = models.Course.objects.get(id=id)
     if request.method=="post":
-        cf = forms.CourseEditForm(request.POST)
+        cf = forms.CourseEditForm(request.POST, instance=course)
         weeks = models.Week.objects.filter(course=course)
         weekformsetfactory = modelformset_factory(models.Week, forms.WeekEditForm, extra=1)
         formset = weekformsetfactory(request.POST, queryset=weeks)
@@ -459,7 +459,7 @@ class GeneratePDF(View):
         pdf = render_to_pdf('student/certificate.html', context)
         if pdf:
             response = HttpResponse(pdf, content_type='application/pdf')
-            filename = "certificate.pdf"
+            filename = certificate.pdf
             content = "attachment; filename='%s'" %(filename)
             response['Content-Disposition'] = content
             return response

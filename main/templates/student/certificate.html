@@ -13,8 +13,8 @@
         <br>
         <hr>
         <br>
-        Name : {{request.user}}<br>
-        Student Id : {{request.user.student.user.id}}<br>
+        Name : {{request.user.first_name}} {{request.user.last_name}}<br>
+        Student Id : {{request.user.student.id}}<br>
         Courses Completed : {{completed|length}}<br>
         <br>
         {% for c in completed %}
