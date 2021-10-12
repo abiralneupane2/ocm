@@ -16,7 +16,7 @@ $ python -m venv /path-to-new-virtualenvironment
 $ /path-to-new-virtualenvironment/environment/Scripts/activate
 
 # Install necessary python packages
-$ pip install django django-extensions django-crispy-forms xhtml2pdf
+$ pip install django django-extensions django-crispy-forms xhtml2pdf django-online-users
 
 <------One time setup upto here--------->
 
