@@ -9,7 +9,7 @@ cd into project folder
 Create virtual environment
 $ python -m venv /menv
 
-# Activate virtual environment
+Activate virtual environment
 $ menv/Scripts/activate
 
 Install requirements
