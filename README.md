@@ -1,31 +1,28 @@
 # ocm
+python version 3.9
 
-
-# Check if python is installed.
-$ python -V
-
-# Install python if not found.
-
-# Install virtual environment.
+Install virtual environment.
 $ pip install virtualenv
 
-# Create virtual environment
-$ python -m venv /path-to-new-virtualenvironment
+cd into project folder
+
+Create virtual environment
+$ python -m venv /menv
 
 # Activate virtual environment
-$ /path-to-new-virtualenvironment/environment/Scripts/activate
+$ menv/Scripts/activate
 
-# Install necessary python packages
-$ pip install django django-extensions django-crispy-forms xhtml2pdf django-online-users
+Install requirements
+$ pip install -r requirements.txt
 
 <------One time setup upto here--------->
 
-# To start application
+To start application
 
-# Activate virtual environment
-$ /path-to-new-virtualenvironment/environment/Scripts/activate
+Activate virtual environment
+$ menv/environment/Scripts/activate
 
 # cd into project folder
-$ ./manage.py runserver
+$ python manage.py runserver
 
 
