@@ -22,7 +22,7 @@ To start application
 Activate virtual environment
 $ menv/environment/Scripts/activate
 
-# cd into project folder
+cd into project folder
 $ python manage.py runserver
 
 
